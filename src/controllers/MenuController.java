@@ -22,7 +22,7 @@ public abstract class MenuController {
     public void start() {
 
         try {
-            int selectedOption = 0;
+            Integer selectedOption = 0;
 
             while (true) {
                 helper.clearConsole();
@@ -41,7 +41,12 @@ public abstract class MenuController {
                 } else if (key.equals("c")) {
                     helper.clearConsole();
 
+                    if (selectedOption.equals(4)) {
+                        break;
+                    }
+                    
                     excuteChoice(selectedOption);
+
                 }
 
                 helper.clearConsole();

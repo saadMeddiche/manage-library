@@ -8,7 +8,7 @@ import models.Client;
 import services.ClientService;
 import helpers.helper;
 
-public class ViewClient implements View {
+public class ViewClient extends View {
 
     private static ClientService ClientService = new ClientService();
 

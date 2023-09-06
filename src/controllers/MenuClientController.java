@@ -15,7 +15,7 @@ public class MenuClientController extends MenuController {
                 "View All Clients",
                 "Update Client",
                 "Delete Client",
-                "Exit"
+                "Return"
         };
     }
 }

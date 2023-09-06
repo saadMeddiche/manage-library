@@ -42,6 +42,16 @@ Source : https://www.programiz.com/java-programming/super-keyword#:~:text=Use%20
 
 Source : https://www.geeksforgeeks.org/how-to-print-colored-text-in-java-console/
 
-# Trigger 
+# Trigger
 
 Source : https://sql.sh/cours/create-trigger
+
+# New way Of Making new instance
+
+Source : https://www.javatpoint.com/new-instance()-method#:~:text=The%20newInstance()%20method%20of,invoke%20any%20number%20of%20arguments.
+
+# how to change the lenght of a string in java
+
+Source 1: https://www.javatpoint.com/java-stringbuilder-setlength-method
+
+Source 2: https://www.geeksforgeeks.org/stringbuilder-append-method-in-java-with-examples/

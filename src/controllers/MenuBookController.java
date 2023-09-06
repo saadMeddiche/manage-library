@@ -17,7 +17,7 @@ public class MenuBookController extends MenuController {
                 "View All Books",
                 "Update Book",
                 "Delete Book",
-                "Exit"
+                "Return"
         };
     }
 

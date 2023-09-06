@@ -5,15 +5,15 @@ package views;
 import java.util.Scanner;
 import java.util.List;
 
+
 import helpers.helper;
 import services.BookService;
 import models.Book;
 
-public class ViewBook implements View {
+public class ViewBook extends View {
 
     private static BookService BookService = new BookService();
 
-    @Override
     public void showAll(int currentPage) {
 
         helper.clearConsole();
@@ -36,6 +36,10 @@ public class ViewBook implements View {
 
         for (int i = startRow; i < endRow; i++) {
             Book book = bookList.get(i);
+
+            Class c = Book.class;
+            c.getDeclaredFields();
+
             System.out.println("ID: " + book.getId());
             System.out.println("TITLE: " + book.getTitle());
             System.out.println("AUTHOR: " + book.getAuthor());

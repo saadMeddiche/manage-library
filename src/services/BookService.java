@@ -15,11 +15,11 @@ import database.Db;
 import helpers.helper;
 import models.Book;
 
-public class BookService {
+public class BookService extends Service {
 
     private Connection connection = Db.makeConnection();
 
-    public List<Book> getAllBooks() {
+    public List<Book> fetchAll() {
         List<Book> BookList = new ArrayList<Book>();
 
         try {
@@ -147,7 +147,7 @@ public class BookService {
 
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, row);
-            
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
