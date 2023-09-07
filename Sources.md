@@ -56,6 +56,10 @@ Source 1: https://www.javatpoint.com/java-stringbuilder-setlength-method
 
 Source 2: https://www.geeksforgeeks.org/stringbuilder-append-method-in-java-with-examples/
 
-# How to create array of objects 
+# How to create array of objects
 
 Source 1: https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/
+
+# How to get the simple name of the class
+
+Source : https://stackoverflow.com/questions/6271417/java-get-the-current-class-name

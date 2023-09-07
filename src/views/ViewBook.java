@@ -1,9 +1,10 @@
 // #Math Ceil Function
-
+// # How to get the simple name of the class
 package views;
 
 import java.util.Scanner;
 import java.util.List;
+import java.lang.reflect.Field;
 
 import helpers.helper;
 import services.BookService;
@@ -11,7 +12,11 @@ import models.Book;
 
 public class ViewBook implements View {
 
-    private static BookService BookService = new BookService();
+    private BookService BookService = new BookService();
+
+    private Class<Book> c = Book.class;
+
+    private String nameTable = c.getSimpleName() + "s";
 
     public void showAll(int currentPage) {
 
@@ -19,29 +24,38 @@ public class ViewBook implements View {
 
         int pageSize = 5;
 
-        List<Book> bookList = BookService.fetchAll();
+        List<Object> listObject = BookService.fetchAll(c, nameTable);
 
         int startRow = currentPage * pageSize;
-        int endRow = Math.min(startRow + pageSize, bookList.size());
+        int endRow = Math.min(startRow + pageSize, listObject.size());
 
-        int pages = (int) Math.ceil((double) bookList.size() / pageSize);
+        int pages = (int) Math.ceil((double) listObject.size() / pageSize);
 
-        System.out.println("\u001B[32m" + "=======List Books=======" + "\u001B[0m");
+        System.out.println("\u001B[32m" + "=======List " + nameTable + "=======" + "\u001B[0m");
 
-        if (startRow >= bookList.size()) {
-            System.out.println("No more books to display.");
+        if (startRow >= listObject.size()) {
+            System.out.println("No more " + nameTable + " to display.");
             return;
         }
 
         for (int i = startRow; i < endRow; i++) {
-            Book book = bookList.get(i);
 
-            System.out.println("ID: " + book.getId());
-            System.out.println("TITLE: " + book.getTitle());
-            System.out.println("AUTHOR: " + book.getAuthor());
-            System.out.println("ISBN: " + book.getIsbn());
-            System.out.println("QUANTITY: " + book.getQuantite());
-            System.out.println("\u001B[32m" + "======================" + "\u001B[0m");
+            Field[] fields = listObject.get(i).getClass().getDeclaredFields();
+
+            try {
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    String fieldName = field.getName();
+                    Object value = field.get(listObject.get(i));
+                    System.out.println(fieldName + ": " + value);
+                }
+
+                System.out.println("\u001B[32m" + "======================" + "\u001B[0m");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
         System.out.println("Page " + (currentPage + 1) + " of " + pages);
@@ -92,22 +106,29 @@ public class ViewBook implements View {
         }
     }
 
-    public void show(int isbn) {
+    public void show(Integer isbn) {
 
-        if (!BookService.checkIfBookExist(isbn)) {
+        if (!BookService.checkIfExist(nameTable, "isbn", isbn)) {
             helper.clearConsole();
             System.out.println("Book with ISBN " + isbn + " does not exist.");
             helper.stopProgramUntilButtonIsCliqued();
             return;
         }
 
-        Book book = BookService.findBookWithIsbn(isbn);
+        Object object = BookService.find(c, nameTable, "isbn", isbn);
 
-        System.out.println("ID: " + book.getId());
-        System.out.println("TITLE: " + book.getTitle());
-        System.out.println("AUTHOR: " + book.getAuthor());
-        System.out.println("ISBN: " + book.getIsbn());
-        System.out.println("QUANTITE: " + book.getQuantite());
+        Field[] fields = object.getClass().getDeclaredFields();
+
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                Object value = field.get(object);
+                System.out.println(fieldName + ": " + value);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -129,14 +150,14 @@ public class ViewBook implements View {
 
         Book book = new Book(null, title, author, isbn, quantite);
 
-        int status = BookService.add(book);
-
+        Boolean addedSuccessfuly = BookService.add(book, nameTable);
         helper.clearConsole();
 
-        if (status == 0) {
-            System.out.println("Something Went Wrong !!");
-        } else {
+        System.out.println(nameTable);
+        if (addedSuccessfuly) {
             System.out.println("Book Has Been Created Successfuly");
+        } else {
+            System.out.println("Something Went Wrong !!");
         }
 
         helper.stopProgramUntilButtonIsCliqued();
@@ -160,12 +181,12 @@ public class ViewBook implements View {
 
         helper.clearConsole();
 
-        int status = BookService.destroyByIsbn(book_isbn);
+        Boolean deletedSuccessfuly = BookService.destroy(nameTable, "isbn", book_isbn);
 
-        if (status == 0) {
-            System.out.println("Book with ISBN " + book_isbn + " does not exist.");
-        } else {
+        if (deletedSuccessfuly) {
             System.out.println("Book with ISBN " + book_isbn + " has been deleted.");
+        } else {
+            System.out.println("Book with ISBN " + book_isbn + " does not exist.");
         }
 
         helper.stopProgramUntilButtonIsCliqued();
@@ -180,7 +201,7 @@ public class ViewBook implements View {
         System.out.println("Write the isbn of the book that you want to update");
         Integer isbn = input.nextInt();
 
-        if (!BookService.checkIfBookExist(isbn)) {
+        if (!BookService.checkIfExist(nameTable, "isbn", isbn)) {
             System.out.println("Book with ISBN " + isbn + " does not exist.");
             helper.stopProgramUntilButtonIsCliqued();
             return;
@@ -192,7 +213,7 @@ public class ViewBook implements View {
         System.out.println("Is This The Book That You Want To Update ?");
         System.out.println("==========================================");
 
-        Book book = BookService.findBookWithIsbn(isbn);
+        Book book = (Book) BookService.find(c, nameTable, "isbn", isbn);
 
         show(isbn);
 
@@ -253,11 +274,11 @@ public class ViewBook implements View {
                 System.out.println("Invalid choice.");
         }
 
-        int status = BookService.updateByIsbn(book, isbn);
+        Boolean updatedSuccessfuly = BookService.update(book, nameTable, "isbn", isbn);
 
         helper.clearConsole();
 
-        if (status == 1) {
+        if (updatedSuccessfuly) {
             System.out.println("Book with ISBN " + isbn + " has been updated.");
         } else {
             System.out.println("Something Went Wrong");

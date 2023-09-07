@@ -37,12 +37,6 @@ public abstract class Service {
                 fieldTypes[i] = fields[i].getType();
             }
 
-            for (Class<?> field : fieldTypes) {
-                System.out.println(field);
-            }
-
-            System.out.println("=================");
-
             while (rs.next()) {
 
                 Object[] fieldValues = new Object[fields.length];
@@ -52,7 +46,6 @@ public abstract class Service {
                     Object value = rs.getObject(propertyName);
 
                     fieldValues[i] = value;
-                    System.out.println(value.getClass());
                 }
 
                 Constructor<?> constructor = c.getConstructor(fieldTypes);
@@ -287,7 +280,7 @@ public abstract class Service {
 
     }
 
-    public boolean checkIfExist(String table, String column, String value) {
+    public boolean checkIfExist(String table, String column, Object value) {
 
         Boolean record_exist = false;
 
@@ -297,7 +290,7 @@ public abstract class Service {
 
             PreparedStatement ps = connection.prepareStatement(query);
 
-            ps.setString(1, value);
+            ps.setObject(1, value);
 
             ResultSet resultSet = ps.executeQuery();
 

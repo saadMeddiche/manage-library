@@ -1,18 +1,8 @@
 package helpers;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-// import java.sql.Statement;
 import java.util.Scanner;
 
-import java.io.IOException;
-import java.lang.ProcessBuilder;
-import database.Db;
-
 public class helper {
-
-    private static Connection connection = Db.makeConnection();
 
     public static void stopProgramUntilButtonIsCliqued() {
 
