@@ -30,33 +30,6 @@ public class helper {
         System.out.print("\033[H\033[2J");
     }
 
-    public static boolean checkIfExist(String table, String column, String value) {
-
-        Boolean record_exist = false;
-
-        try {
-
-            String query = "SELECT COUNT(*) FROM " + table + " WHERE " + column + "=?";
-
-            PreparedStatement ps = connection.prepareStatement(query);
-
-            ps.setString(1, value);
-
-            ResultSet resultSet = ps.executeQuery();
-
-            if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                record_exist = count > 0;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-
-        return record_exist;
-    }
-
     public static Boolean wannaContinue() {
 
         Scanner input = new Scanner(System.in);
