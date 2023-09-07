@@ -9,6 +9,10 @@ public class Client {
         this.phone = phone;
     }
 
+    public Client() {
+
+    }
+
     public Integer getId() {
         return this.id;
     }
@@ -46,5 +50,4 @@ public class Client {
     private String cin;
     private String phone;
 
-   
 }

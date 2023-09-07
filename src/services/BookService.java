@@ -138,30 +138,4 @@ public class BookService extends Service {
         return helper.checkIfExist("books", "isbn", Integer.toString(isbn));
     }
 
-    public List<Book> getBookByPage(int row) {
-
-        List<Book> BookList = new ArrayList<Book>();
-
-        try {
-            String query = "SELECT * FROM books LIMIT 5 OFFSET ?";
-
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, row);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                Book book = new Book(rs.getInt("id"), rs.getString("title"), rs.getString("author"),
-                        Integer.valueOf(rs.getString("isbn")), rs.getInt("quantite"));
-
-                BookList.add(book);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return BookList;
-
-    }
-
 }

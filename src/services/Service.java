@@ -40,7 +40,6 @@ public abstract class Service {
 
                 for (Field field : fields) {
 
-
                     String propertyName = field.getName();
 
                     Object value = rs.getObject(propertyName);
@@ -134,5 +133,50 @@ public abstract class Service {
         }
 
         return status;
+    }
+
+    public Boolean update(Object object, String table, String whereColumn, Object value) {
+
+        try {
+            StringBuilder query = new StringBuilder("UPDATE `" + table + "` SET ");
+            String columns = "";
+
+            // String query = "UPDATE `books` SET `title`=?,`author`=?,`isbn`=?,`quantite`=?
+            // WHERE `isbn`=?";
+
+            Class<?> c = object.getClass();
+
+            Field[] fields = c.getDeclaredFields();
+
+            for (Field field : fields) {
+                String ColumnName = field.getName();
+                columns += "`" + ColumnName + "`=?,";
+            }
+
+            query.append(columns);
+            query.setLength(query.length() - 1);
+            query.append(" WHERE `" + whereColumn + "`=?");
+
+            PreparedStatement ps = connection.prepareStatement(query.toString());
+
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].setAccessible(true);
+                Object fieldValue = fields[i].get(object);
+                ps.setObject(i + 1, fieldValue);
+            }
+            
+            ps.setObject(fields.length + 1, value);
+
+
+            int count = ps.executeUpdate();
+
+            if (count > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }
