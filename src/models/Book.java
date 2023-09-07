@@ -16,6 +16,10 @@ public class Book {
         this.quantite = quantite;
     }
 
+    public Book() {
+
+    }
+
     // Getters & Setters
     public void setId(Integer id) {
         this.id = id;
@@ -56,7 +60,5 @@ public class Book {
     public void setQuantite(Integer quantite) {
         this.quantite = quantite;
     }
-
-    
 
 }

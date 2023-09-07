@@ -5,12 +5,11 @@ package views;
 import java.util.Scanner;
 import java.util.List;
 
-
 import helpers.helper;
 import services.BookService;
 import models.Book;
 
-public class ViewBook extends View {
+public class ViewBook implements View {
 
     private static BookService BookService = new BookService();
 
@@ -20,7 +19,7 @@ public class ViewBook extends View {
 
         int pageSize = 5;
 
-        List<Book> bookList = BookService.getAllBooks();
+        List<Book> bookList = BookService.fetchAll();
 
         int startRow = currentPage * pageSize;
         int endRow = Math.min(startRow + pageSize, bookList.size());
@@ -36,9 +35,6 @@ public class ViewBook extends View {
 
         for (int i = startRow; i < endRow; i++) {
             Book book = bookList.get(i);
-
-            Class c = Book.class;
-            c.getDeclaredFields();
 
             System.out.println("ID: " + book.getId());
             System.out.println("TITLE: " + book.getTitle());

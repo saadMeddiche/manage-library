@@ -55,3 +55,7 @@ Source : https://www.javatpoint.com/new-instance()-method#:~:text=The%20newInsta
 Source 1: https://www.javatpoint.com/java-stringbuilder-setlength-method
 
 Source 2: https://www.geeksforgeeks.org/stringbuilder-append-method-in-java-with-examples/
+
+# How to create array of objects 
+
+Source 1: https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/

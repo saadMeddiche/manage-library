@@ -11,13 +11,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import database.Db;
 import models.Book;
 
 public abstract class Service {
 
     private Connection connection = Db.makeConnection();
+
+    Service() {
+
+    }
 
     protected List<Object> fetchAll(Class<Object> c, String table) {
 
@@ -31,11 +34,12 @@ public abstract class Service {
 
                 Constructor<Object> constructor = c.getConstructor();
 
-                Object obj = constructor.newInstance();
+                Object obj = c.newInstance();
 
                 Field[] fields = c.getDeclaredFields();
 
                 for (Field field : fields) {
+
 
                     String propertyName = field.getName();
 

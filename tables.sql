@@ -8,7 +8,7 @@ Books (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(50),
     author VARCHAR(40),
-    isbn VARCHAR(100),
+    isbn INT,
     quantite INT
 );
 
