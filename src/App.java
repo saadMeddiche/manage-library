@@ -37,15 +37,21 @@ public class App {
 
         // }
 
-        Object object = find(Client.class, "clients", "id", 1);
+        // Object object = find(Client.class, "clients", "id", 1);
 
-        Field[] fields = object.getClass().getDeclaredFields();
+        List<Object> objects = search(Book.class, "books", "author", "test");
 
-        for (Field field : fields) {
-            field.setAccessible(true);
-            String fieldName = field.getName();
-            Object value = field.get(object);
-            System.out.println(fieldName + ": " + value);
+        for (Object object : objects) {
+
+            Field[] fields = object.getClass().getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                Object value = field.get(object);
+                System.out.println(fieldName + ": " + value);
+            }
+
         }
 
     }
@@ -269,6 +275,53 @@ public class App {
         }
 
         return obj;
+
+    }
+
+    public static List<Object> search(Class<?> c, String table, String whereColumn, Object value) {
+
+        List<Object> itemList = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT * FROM " + table + " WHERE " + whereColumn + " LIKE ?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setObject(1, value + "%");
+            ResultSet rs = ps.executeQuery();
+
+            Field[] fields = c.getDeclaredFields();
+
+            // Source :
+            // https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/
+            Class<?>[] fieldTypes = new Class<?>[fields.length];
+
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].setAccessible(true);
+                fieldTypes[i] = fields[i].getType();
+            }
+
+            while (rs.next()) {
+
+                Object[] fieldValues = new Object[fields.length];
+
+                for (int i = 0; i < fields.length; i++) {
+                    String propertyName = fields[i].getName();
+                    Object v = rs.getObject(propertyName);
+
+                    fieldValues[i] = v;
+                }
+
+                Constructor<?> constructor = c.getConstructor(fieldTypes);
+                Object obj = constructor.newInstance(fieldValues);
+
+                itemList.add(obj);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return itemList;
 
     }
 }
