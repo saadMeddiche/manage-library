@@ -5,7 +5,7 @@ import views.ViewClient;
 public class MenuClientController extends MenuController {
 
     public MenuClientController() {
-        super(new ViewClient());
+        super(new ViewClient(), "cin");
     }
 
     @Override

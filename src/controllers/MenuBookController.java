@@ -7,7 +7,7 @@ import views.ViewBook;
 public class MenuBookController extends MenuController {
 
     public MenuBookController() {
-        super(new ViewBook());
+        super(new ViewBook(), "isbn");
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.sql.PreparedStatement;
 import java.lang.reflect.Field;
 import database.Db;
 
-public abstract class Service {
+public class Service {
 
     private static Connection connection = Db.makeConnection();
 

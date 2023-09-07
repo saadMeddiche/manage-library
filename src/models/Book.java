@@ -2,11 +2,11 @@ package models;
 
 public class Book {
 
-    private Integer id;
-    private String title;
-    private String author;
-    private Integer isbn;
-    private Integer quantite;
+    public Integer id;
+    public String title;
+    public String author;
+    public Integer isbn;
+    public Integer quantite;
 
     public Book(Integer id, String title, String author, Integer isbn, Integer quantite) {
         this.id = id;

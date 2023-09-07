@@ -45,9 +45,9 @@ public class Client {
         this.phone = phone;
     }
 
-    private Integer id;
-    private String name;
-    private String cin;
-    private String phone;
+    public Integer id;
+    public String name;
+    public String cin;
+    public String phone;
 
 }

@@ -11,12 +11,14 @@ import views.View;
 public abstract class MenuController {
 
     private View view;
+    private String whereColumn;
 
     protected MenuController() {
     }
 
-    protected MenuController(View view) {
+    protected MenuController(View view, String whereColumn) {
         this.view = view;
+        this.whereColumn = whereColumn;
     }
 
     public void start() {
@@ -44,7 +46,7 @@ public abstract class MenuController {
                     if (selectedOption.equals(4)) {
                         break;
                     }
-                    
+
                     excuteChoice(selectedOption);
 
                 }
@@ -78,10 +80,10 @@ public abstract class MenuController {
                 view.showAll(0);
                 break;
             case 2:
-                view.update();
+                view.update(whereColumn);
                 break;
             case 3:
-                view.delete();
+                // view.delete();
                 break;
             case 4:
                 System.out.println("Lay3awen!");
