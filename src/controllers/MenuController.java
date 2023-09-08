@@ -83,7 +83,7 @@ public abstract class MenuController {
                 view.update(whereColumn);
                 break;
             case 3:
-                // view.delete();
+                view.delete(whereColumn);
                 break;
             case 4:
                 System.out.println("Lay3awen!");

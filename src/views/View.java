@@ -208,8 +208,7 @@ public class View {
 
         try {
             Scanner input = new Scanner(System.in);
-            System.out.println(whereColumn);
-            helper.stopProgramUntilButtonIsCliqued();
+
             Field field = c.getField(whereColumn);
 
             Object value = null;
@@ -250,8 +249,14 @@ public class View {
             int attributeNumber = 1;
 
             for (Field f : fields) {
+
+                if (f.getName() == "id") {
+                    continue;
+                }
+
                 System.out.println(attributeNumber + ". " + f.getName());
                 attributeNumber++;
+
             }
             System.out.println(attributeNumber + ". All of the above");
 
@@ -259,9 +264,16 @@ public class View {
             int choice = input.nextInt();
 
             if (choice >= 1 && choice <= fields.length + 1) {
+
                 if (choice == attributeNumber) {
 
                     for (Field f : fields) {
+
+                        if (field.getName() == "id") {
+                            f.set(object, null);
+                            continue;
+                        }
+
                         System.out.print("Enter the new value for " + f.getName() + ": ");
                         Object newValue = null;
 
@@ -277,16 +289,17 @@ public class View {
                     }
                 } else {
 
-                    Field selectedField = fields[choice - 1];
+                    Field selectedField = fields[choice];
                     System.out.print("Enter the new value for " + selectedField.getName() + ": ");
                     Object newValue = null;
+                    Scanner scann = new Scanner(System.in);
 
                     if (selectedField.getType() == String.class) {
-                        newValue = input.nextLine();
+                        newValue = scann.nextLine();
                     }
 
                     if (selectedField.getType() == Integer.class) {
-                        newValue = input.nextInt();
+                        newValue = scann.nextInt();
                     }
 
                     selectedField.set(object, newValue);
