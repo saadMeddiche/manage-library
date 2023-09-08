@@ -3,6 +3,7 @@
 // #Colors In Console
 package controllers;
 
+import java.io.File;
 import java.util.Scanner;
 
 import helpers.helper;
@@ -92,6 +93,49 @@ public abstract class MenuController {
             default:
                 System.out.println("wa haaaad choice makaynx :/");
         }
+    }
+
+    public static Class<?>[] findModels() {
+
+        try {
+
+            File packageDirectory = new File("C:\\Users\\YouCode\\Desktop\\Library\\bin\\models");
+
+            String[] files = packageDirectory.list();
+
+            Class<?>[] classes = new Class<?>[files.length];
+
+            int index = 0;
+
+            for (String file : files) {
+
+                StringBuilder sb = new StringBuilder(file);
+
+                // remove .class
+                sb.setLength(sb.length() - 6);
+
+                Class<?> c = getClass(sb.toString());
+
+                classes[index] = c;
+
+                index++;
+            }
+
+            return classes;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static Class<?> getClass(String className) {
+        try {
+            return Class.forName("models." + className);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     protected abstract String[] options();

@@ -63,3 +63,13 @@ Source 1: https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/
 # How to get the simple name of the class
 
 Source : https://stackoverflow.com/questions/6271417/java-get-the-current-class-name
+
+# File In Java
+
+Source 1 : https://www.geeksforgeeks.org/file-class-in-java/
+
+# Create a class by givin its name
+
+Source 1 : https://www.geeksforgeeks.org/class-forname-method-in-java-with-examples/
+
+Source 2 : https://www.baeldung.com/java-find-all-classes-in-package

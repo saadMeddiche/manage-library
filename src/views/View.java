@@ -1,13 +1,14 @@
 // # Interface In Java
 package views;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Scanner;
 
 import helpers.helper;
-
 import services.Service;
 
 public class View {
@@ -20,10 +21,43 @@ public class View {
 
     private Service service = new Service();
 
+    private String whereColumn;
+
     public View(Class<?> c) {
         this.c = c;
         this.nameClass = c.getSimpleName();
         this.nameTable = c.getSimpleName() + "s";
+
+        this.whereColumn = getSpecial();
+    }
+
+    public String getSpecial() {
+
+        try {
+            Object obj = c.newInstance();
+
+            Method[] methods = c.getDeclaredMethods();
+
+            for (Method method : methods) {
+                if (method.getName().equals("special")) {
+                    return method.invoke(obj).toString();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String[] options() {
+
+        return new String[] {
+                "Add " + nameClass,
+                "Show " + nameClass,
+                "Update " + nameClass,
+                "Delete " + nameClass,
+                "Exist"
+        };
     }
 
     public void showAll(int currentPage) {
@@ -269,23 +303,24 @@ public class View {
 
                     for (Field f : fields) {
 
-                        if (field.getName() == "id") {
+                        Object nv = null;
+
+                        if (f.getName() == "id") {
                             f.set(object, null);
                             continue;
                         }
 
                         System.out.print("Enter the new value for " + f.getName() + ": ");
-                        Object newValue = null;
 
                         if (f.getType() == String.class) {
-                            newValue = input.nextLine();
+                            nv = input.next();
                         }
 
                         if (f.getType() == Integer.class) {
-                            newValue = input.nextInt();
+                            nv = input.nextInt();
                         }
 
-                        f.set(object, newValue);
+                        f.set(object, nv);
                     }
                 } else {
 
@@ -369,5 +404,121 @@ public class View {
             e.printStackTrace();
         }
 
+    }
+
+    public void start() {
+
+        try {
+            Integer selectedOption = 0;
+
+            while (true) {
+                helper.clearConsole();
+
+                displayMenu(selectedOption);
+
+                Scanner input = new Scanner(System.in);
+                String key = input.next();
+
+                if (key.equals("w") && selectedOption < options().length - 1) {
+                    selectedOption = selectedOption + 1;
+
+                } else if (key.equals("s") && selectedOption >= 1) {
+                    selectedOption = selectedOption - 1;
+
+                } else if (key.equals("c")) {
+                    helper.clearConsole();
+
+                    if (selectedOption.equals(4)) {
+                        break;
+                    }
+
+                    excuteChoice(selectedOption);
+
+                }
+
+                helper.clearConsole();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void displayMenu(int selectedOption) throws Exception {
+        System.out.println("\u001B[32m======Menu======\u001B[0m");
+        String[] options = options();
+        for (int i = 0; i < options.length; i++) {
+            if (i == selectedOption) {
+                System.out.println("\u001B[32m" + "-> " + "\u001B[0m" + options[i]);
+            } else {
+                System.out.println("   " + options[i]);
+            }
+        }
+    }
+
+    public void excuteChoice(int choice) {
+        switch (choice) {
+            case 0:
+                add();
+                break;
+            case 1:
+                showAll(0);
+                break;
+            case 2:
+                update(whereColumn);
+                break;
+            case 3:
+                delete(whereColumn);
+                break;
+            case 4:
+                System.out.println("Lay3awen!");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("wa haaaad choice makaynx :/");
+        }
+    }
+
+    public static Class<?>[] findModels() {
+
+        try {
+
+            File packageDirectory = new File("C:\\Users\\YouCode\\Desktop\\Library\\bin\\models");
+
+            String[] files = packageDirectory.list();
+
+            Class<?>[] classes = new Class<?>[files.length];
+
+            int index = 0;
+
+            for (String file : files) {
+
+                StringBuilder sb = new StringBuilder(file);
+
+                // remove .class
+                sb.setLength(sb.length() - 6);
+
+                Class<?> c = getClass(sb.toString());
+
+                classes[index] = c;
+
+                index++;
+            }
+
+            return classes;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static Class<?> getClass(String className) {
+        try {
+            return Class.forName("models." + className);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

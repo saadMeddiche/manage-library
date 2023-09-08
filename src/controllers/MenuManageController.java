@@ -1,50 +1,54 @@
 package controllers;
 
-import helpers.helper;
+import views.View;
+
+import java.lang.reflect.Method;
+
+import models.*;
 
 public class MenuManageController extends MenuController {
 
     @Override
     protected String[] options() {
-        return new String[] {
-                "Manage Books",
-                "Manage Clients",
-                "Manage BorrowedBooks",
-                "Manage Rapports",
-                "Manage Statues",
-                "Exist"
-        };
+
+        Class<?>[] models = findModels();
+
+        String[] options = new String[models.length + 1];
+
+        int index = 0;
+
+        for (Class<?> m : models) {
+
+            options[index] = "Manage " + m.getSimpleName();
+
+            index++;
+        }
+
+        options[index] = "Exist";
+
+        return options;
     }
 
     @Override
     protected void excuteChoice(int choice) {
-        switch (choice) {
-            case 0:
-                MenuBookController menuBookController = new MenuBookController();
-                menuBookController.start();
-                break;
-            case 1:
-                MenuClientController menuClientController = new MenuClientController();
-                menuClientController.start();
-                break;
-            case 2:
-                System.out.println("Coming Soon !");
-                helper.stopProgramUntilButtonIsCliqued();
-                break;
-            case 3:
-                System.out.println("Coming Soon !");
-                helper.stopProgramUntilButtonIsCliqued();
-                break;
-            case 4:
-                System.out.println("Coming Soon !");
-                helper.stopProgramUntilButtonIsCliqued();
-                break;
-            case 5:
-                System.out.println("Lay3awen!");
+
+        if (choice >= 0 && choice <= options().length - 1) {
+
+            if (options().length - 1 == choice) {
                 System.exit(0);
-                break;
-            default:
-                System.out.println("wa haaaad choice makaynx :/");
+            } else {
+                Class<?>[] classes = findModels();
+                Class<?> c = classes[choice];
+
+                View view = new View(c);
+                view.start();
+
+            }
+        } else {
+            System.out.println("Invalid choice.");
+
         }
+
     }
+
 }

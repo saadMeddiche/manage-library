@@ -33,10 +33,12 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    Statues (
+    Statuss (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL
     );
+
+
 
 CREATE TABLE
     Rapports (
@@ -51,7 +53,7 @@ CREATE TABLE
 --Trigger
 
 CREATE TRIGGER BORROWBOOK 
-	  AFTER
+	BORROWBOOK BORROWBOOK BORROWBOOK AFTER
 	INSERT
 	    on BorrowedBooks for each row
 	UPDATE books
@@ -78,6 +80,12 @@ INSERT INTO
         `date_borrow_end`,
         `price`
     )
-VALUES(7, 1, CURRENT_DATE , CURRENT_DATE + 2 , 20);
+VALUES (
+        7,
+        1,
+        CURRENT_DATE,
+        CURRENT_DATE + 2,
+        20
+    );
 
 SELECT * FROM clients;

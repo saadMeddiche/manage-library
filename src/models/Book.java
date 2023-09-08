@@ -61,4 +61,7 @@ public class Book {
         this.quantite = quantite;
     }
 
+    public static String special() {
+        return "isbn";
+    }
 }

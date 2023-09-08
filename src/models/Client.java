@@ -2,6 +2,11 @@ package models;
 
 public class Client {
 
+    public Integer id;
+    public String name;
+    public String cin;
+    public String phone;
+
     public Client(Integer id, String name, String cin, String phone) {
         this.id = id;
         this.name = name;
@@ -45,9 +50,8 @@ public class Client {
         this.phone = phone;
     }
 
-    public Integer id;
-    public String name;
-    public String cin;
-    public String phone;
+    public static String special() {
+        return "cin";
+    }
 
 }
