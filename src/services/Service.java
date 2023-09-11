@@ -306,4 +306,24 @@ public class Service {
 
         return record_exist;
     }
+
+    public String get_referenced_table_name(String table_name, String column_name) {
+        try {
+            String query = "SELECT REFERENCED_TABLE_NAME FROM information_schema.key_column_usage WHERE TABLE_SCHEMA = 'library' AND TABLE_NAME = ? AND COLUMN_NAME = ?";
+            PreparedStatement ps = connection.prepareStatement(query);
+
+            ps.setString(1, table_name);
+            ps.setString(2, column_name);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("REFERENCED_TABLE_NAME");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

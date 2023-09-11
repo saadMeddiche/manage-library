@@ -25,6 +25,8 @@ public class App {
         MainMenu m = new MainMenu();
         m.start();
 
+        // String x = service.get_referenced_table_name("borrowedbooks", "book_id");
+        // System.out.println(x);
     }
 
 }

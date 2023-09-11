@@ -29,15 +29,15 @@ public class View extends Menu {
         this.nameClass = c.getSimpleName();
         this.nameTable = c.getSimpleName() + "s";
 
-        this.whereColumn = getSpecial();
+        this.whereColumn = getSpecial(c);
     }
 
-    public String getSpecial() {
+    public String getSpecial(Class<?> clazz) {
 
         try {
-            Object obj = c.newInstance();
+            Object obj = clazz.newInstance();
 
-            Method[] methods = c.getDeclaredMethods();
+            Method[] methods = clazz.getDeclaredMethods();
 
             for (Method method : methods) {
                 if (method.getName().equals("special")) {
@@ -47,6 +47,7 @@ public class View extends Menu {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -174,17 +175,46 @@ public class View extends Menu {
                     Values[index] = null;
 
                 } else {
-                    System.out.println("Add " + field.getName() + " Of " + nameClass);
 
-                    if (field.getType() == String.class) {
-                        String value = input.nextLine();
-                        Values[index] = value;
+                    String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+
+                    if (referenced_table_name == null) {
+                        System.out.println("Add " + field.getName() + " Of " + nameClass);
+
+                        if (field.getType() == String.class) {
+                            String value = input.next();
+                            Values[index] = value;
+                        }
+
+                        if (field.getType() == Integer.class) {
+                            Integer value = Integer.parseInt(input.next());
+                            Values[index] = value;
+                        }
+
+                    } else {
+
+                        StringBuilder sb = new StringBuilder(referenced_table_name);
+                        sb.setLength(sb.length() - 1);
+                        String referenced_class_name = sb.toString();
+
+                        Class<?> claxx = getClass(referenced_class_name);
+
+                        String whereColumn = getSpecial(claxx);
+
+                        System.out.println("Add " + whereColumn + " Of " + claxx.getSimpleName());
+
+                        String v = input.next().toString();
+
+                        Object object = service.find(claxx, referenced_table_name, whereColumn, v);
+
+                        Method getIdMethod = object.getClass().getMethod("getId");
+
+                        Object id = getIdMethod.invoke(object);
+
+                        Values[index] = id;
+
                     }
 
-                    if (field.getType() == Integer.class) {
-                        Integer value = input.nextInt();
-                        Values[index] = value;
-                    }
                     // index++;
 
                 }
@@ -230,6 +260,8 @@ public class View extends Menu {
             if (field.getType() == Integer.class) {
                 value = input.nextInt();
             }
+
+            helper.clearConsole();
 
             if (!service.checkIfExist(nameTable, whereColumn, value)) {
                 System.out.println(nameTable + " with " + whereColumn + " " + value + " does not exist.");

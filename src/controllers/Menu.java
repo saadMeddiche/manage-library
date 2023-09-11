@@ -99,8 +99,10 @@ public abstract class Menu {
     }
 
     public static Class<?> getClass(String className) {
+
         try {
-            return Class.forName("models." + className);
+            String x = className.substring(0, 1).toUpperCase() + className.substring(1);
+            return Class.forName("models." + x);
         } catch (Exception e) {
             e.printStackTrace();
         }
