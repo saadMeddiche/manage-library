@@ -395,7 +395,8 @@ public class View extends Menu {
         System.out.println("\u001B[32m" + "=======List " + nameTable + "=======" + "\u001B[0m");
 
         if (startRow >= listObject.size()) {
-            System.out.println("No more " + nameTable + " to display.");
+            System.out.println("There is no " + nameTable + " to display.");
+            helper.stopProgramUntilButtonIsCliqued();
             return;
         }
 
