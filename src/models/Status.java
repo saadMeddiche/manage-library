@@ -28,5 +28,8 @@ public class Status {
         this.name = name;
     }
 
+    public String special() {
+        return "name";
+    }
 
 }

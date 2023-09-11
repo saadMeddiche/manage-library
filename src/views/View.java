@@ -96,6 +96,7 @@ public class View extends Menu {
             Field field = c.getField(whereColumn);
 
             System.out.println("Write the " + whereColumn + " of the " + nameClass + "that you want to search");
+
             Object value = null;
             if (field.getType() == String.class) {
                 value = input.next();
@@ -107,9 +108,7 @@ public class View extends Menu {
 
             helper.clearConsole();
 
-            if (!service.checkIfExist(nameTable, whereColumn, value)) {
-                System.out.println(nameTable + " with " + whereColumn + " " + value + " does not exist.");
-                helper.stopProgramUntilButtonIsCliqued();
+            if (!checkIfExist(nameTable, whereColumn, value)) {
                 return;
             }
 
@@ -118,32 +117,32 @@ public class View extends Menu {
             List<Object> objects = service.search(c, nameTable, whereColumn, value);
 
             pagination(0, objects);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public void show(String whereColumn, Object vlaue) {
+    public void show(String whereColumn, Object value) {
 
-        if (!service.checkIfExist(nameTable, whereColumn, vlaue)) {
-            helper.clearConsole();
-            System.out.println(nameClass + " with " + whereColumn + " " + vlaue + " does not exist.");
-            helper.stopProgramUntilButtonIsCliqued();
+        if (!checkIfExist(nameTable, whereColumn, value)) {
             return;
         }
 
-        Object object = service.find(c, nameTable, whereColumn, vlaue);
+        Object object = service.find(c, nameTable, whereColumn, value);
 
         Field[] fields = object.getClass().getDeclaredFields();
 
         try {
+
             for (Field field : fields) {
                 field.setAccessible(true);
                 String fieldName = field.getName();
-                Object value = field.get(object);
-                System.out.println(fieldName + ": " + value);
+                Object v = field.get(object);
+                System.out.println(fieldName + ": " + v);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -205,6 +204,10 @@ public class View extends Menu {
 
                         String v = input.next().toString();
 
+                        if (!checkIfExist(referenced_table_name, whereColumn, v)) {
+                            return;
+                        }
+
                         Object object = service.find(claxx, referenced_table_name, whereColumn, v);
 
                         Method getIdMethod = object.getClass().getMethod("getId");
@@ -253,6 +256,7 @@ public class View extends Menu {
             Object value = null;
 
             System.out.println("Write the " + whereColumn + " of the " + nameClass + " that you want to update");
+
             if (field.getType() == String.class) {
                 value = input.nextLine();
             }
@@ -263,9 +267,7 @@ public class View extends Menu {
 
             helper.clearConsole();
 
-            if (!service.checkIfExist(nameTable, whereColumn, value)) {
-                System.out.println(nameTable + " with " + whereColumn + " " + value + " does not exist.");
-                helper.stopProgramUntilButtonIsCliqued();
+            if (!checkIfExist(nameTable, whereColumn, value)) {
                 return;
             }
 
@@ -287,7 +289,7 @@ public class View extends Menu {
 
             System.out.println("Select what you want to Update:");
             Field[] fields = c.getDeclaredFields();
-            int attributeNumber = 1;
+            int numeration = 1;
 
             for (Field f : fields) {
 
@@ -295,70 +297,71 @@ public class View extends Menu {
                     continue;
                 }
 
-                System.out.println(attributeNumber + ". " + f.getName());
-                attributeNumber++;
+                System.out.println(numeration + ". " + f.getName());
+                numeration++;
 
             }
-            System.out.println(attributeNumber + ". All of the above");
+            System.out.println(numeration + ". All of the above");
 
             System.out.print("Enter your choice: ");
             int choice = input.nextInt();
 
-            if (choice >= 1 && choice <= fields.length + 1) {
+            // If Choice Is Out Of Range
+            if (choice < 1 && choice > fields.length + 1) {
+                System.out.println("Invalid choice.");
+                return;
+            }
 
-                if (choice == attributeNumber) {
+            if (choice == numeration) {
 
-                    for (Field f : fields) {
+                for (Field f : fields) {
 
-                        Object nv = null;
+                    Object nv = null;
 
-                        if (f.getName() == "id") {
-                            f.set(object, null);
-                            continue;
-                        }
-
-                        System.out.print("Enter the new value for " + f.getName() + ": ");
-
-                        if (f.getType() == String.class) {
-                            nv = input.next();
-                        }
-
-                        if (f.getType() == Integer.class) {
-                            nv = input.nextInt();
-                        }
-
-                        f.set(object, nv);
-                    }
-                } else {
-
-                    Field selectedField = fields[choice];
-                    System.out.print("Enter the new value for " + selectedField.getName() + ": ");
-                    Object newValue = null;
-                    Scanner scann = new Scanner(System.in);
-
-                    if (selectedField.getType() == String.class) {
-                        newValue = scann.nextLine();
+                    if (f.getName() == "id") {
+                        f.set(object, null);
+                        continue;
                     }
 
-                    if (selectedField.getType() == Integer.class) {
-                        newValue = scann.nextInt();
+                    System.out.print("Enter the new value for " + f.getName() + ": ");
+
+                    if (f.getType() == String.class) {
+                        nv = input.next();
                     }
 
-                    selectedField.set(object, newValue);
-                }
+                    if (f.getType() == Integer.class) {
+                        nv = input.nextInt();
+                    }
 
-                Boolean updatedSuccessfully = service.update(object, nameTable, whereColumn, value);
-
-                helper.clearConsole();
-
-                if (updatedSuccessfully) {
-                    System.out.println(nameClass + " with " + whereColumn + " " + value + " has been updated.");
-                } else {
-                    System.out.println("Something Went Wrong");
+                    f.set(object, nv);
                 }
 
             } else {
-                System.out.println("Invalid choice.");
+
+                Field selectedField = fields[choice];
+                System.out.print("Enter the new value for " + selectedField.getName() + ": ");
+                Object newValue = null;
+                Scanner scann = new Scanner(System.in);
+
+                if (selectedField.getType() == String.class) {
+                    newValue = scann.nextLine();
+                }
+
+                if (selectedField.getType() == Integer.class) {
+                    newValue = scann.nextInt();
+                }
+
+                selectedField.set(object, newValue);
+            }
+
+            Boolean updatedSuccessfully = service.update(object, nameTable, whereColumn, value);
+
+            helper.clearConsole();
+
+            if (updatedSuccessfully) {
+                System.out.println(nameClass + " with " + whereColumn + " " + value + " has been updated.");
+            } else {
+                System.out.println("Something Went Wrong");
             }
 
             helper.stopProgramUntilButtonIsCliqued();
@@ -387,6 +390,10 @@ public class View extends Menu {
 
             if (field.getType() == Integer.class) {
                 value = input.nextInt();
+            }
+
+            if (!checkIfExist(nameTable, whereColumn, value)) {
+                return;
             }
 
             helper.clearConsole();
@@ -426,7 +433,7 @@ public class View extends Menu {
 
         System.out.println("\u001B[32m" + "=======List " + nameTable + "=======" + "\u001B[0m");
 
-        if (startRow >= listObject.size()) {
+        if (listObject.isEmpty()) {
             System.out.println("There is no " + nameTable + " to display.");
             helper.stopProgramUntilButtonIsCliqued();
             return;
@@ -465,36 +472,33 @@ public class View extends Menu {
         switch (choice) {
             case 1:
                 if (currentPage + 1 < pages) {
-
                     pagination(currentPage + 1, listObject);
-
-                } else {
-                    helper.clearConsole();
-                    System.out.println("You have reached the last page");
-                    helper.stopProgramUntilButtonIsCliqued();
-
-                    pagination(currentPage, listObject);
+                    break;
                 }
+
+                helper.clearConsole();
+                System.out.println("You have reached the last page");
+                helper.stopProgramUntilButtonIsCliqued();
+                pagination(currentPage, listObject);
 
                 break;
             case 2:
                 if (currentPage > 0) {
                     pagination(currentPage - 1, listObject);
-                } else {
-                    helper.clearConsole();
-                    System.out.println("You are already on the first page.");
-                    helper.stopProgramUntilButtonIsCliqued();
-
-                    pagination(currentPage, listObject);
+                    break;
                 }
+
+                helper.clearConsole();
+                System.out.println("You are already on the first page.");
+                helper.stopProgramUntilButtonIsCliqued();
+                pagination(currentPage, listObject);
+
                 break;
             case 3:
                 return;
             default:
                 helper.clearConsole();
-
                 System.out.println("wa haaaad choice makaynx :/");
-
                 helper.stopProgramUntilButtonIsCliqued();
                 pagination(currentPage, listObject);
         }
@@ -539,6 +543,19 @@ public class View extends Menu {
             default:
                 System.out.println("wa haaaad choice makaynx :/");
         }
+    }
+
+    public Boolean checkIfExist(String nameTable, String whereColumn, Object value) {
+
+        if (!service.checkIfExist(nameTable, whereColumn, value)) {
+
+            System.out.println(nameTable + " with " + whereColumn + " " + value + " does not exist.");
+            helper.stopProgramUntilButtonIsCliqued();
+
+            return false;
+        }
+
+        return true;
     }
 
 }
