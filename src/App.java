@@ -1,12 +1,12 @@
 
 
-import controllers.MenuManageController;
+import controllers.MainMenu;
 
 public class App {
 
     public static void main(String[] args) throws Exception {
 
-        MenuManageController m = new MenuManageController();
+        MainMenu m = new MainMenu();
         m.start();
 
     }

@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 import models.*;
 
-public class MenuManageController extends MenuController {
+public class MainMenu extends Menu {
 
     @Override
     protected String[] options() {

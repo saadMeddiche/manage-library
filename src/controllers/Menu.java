@@ -9,15 +9,15 @@ import java.util.Scanner;
 import helpers.helper;
 import views.View;
 
-public abstract class MenuController {
+public abstract class Menu {
 
     private View view;
     private String whereColumn;
 
-    protected MenuController() {
+    protected Menu() {
     }
 
-    protected MenuController(View view, String whereColumn) {
+    protected Menu(View view, String whereColumn) {
         this.view = view;
         this.whereColumn = whereColumn;
     }

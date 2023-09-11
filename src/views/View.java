@@ -56,7 +56,7 @@ public class View {
                 "Show " + nameClass,
                 "Update " + nameClass,
                 "Delete " + nameClass,
-                "Exist"
+                "Return"
         };
     }
 
