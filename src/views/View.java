@@ -1,7 +1,6 @@
 // # Interface In Java
 package views;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -10,18 +9,20 @@ import java.util.Scanner;
 
 import helpers.helper;
 import services.Service;
+import controllers.MainMenu;
+import controllers.Menu;
 
-public class View {
+public class View extends Menu {
 
-    private Class<?> c;
+    protected Class<?> c;
 
-    private String nameTable;
+    protected String nameTable;
 
-    private String nameClass;
+    protected String nameClass;
 
-    private Service service = new Service();
+    protected Service service = new Service();
 
-    private String whereColumn;
+    protected String whereColumn;
 
     public View(Class<?> c) {
         this.c = c;
@@ -49,103 +50,77 @@ public class View {
         return null;
     }
 
-    public String[] options() {
-
-        return new String[] {
-                "Add " + nameClass,
-                "Show " + nameClass,
-                "Update " + nameClass,
-                "Delete " + nameClass,
-                "Return"
-        };
-    }
-
-    public void showAll(int currentPage) {
-
-        helper.clearConsole();
-
-        int pageSize = 5;
+    public void showAll() {
 
         List<Object> listObject = service.fetchAll(c, nameTable);
 
-        int startRow = currentPage * pageSize;
-        int endRow = Math.min(startRow + pageSize, listObject.size());
+        pagination(0, listObject);
+    }
 
-        int pages = (int) Math.ceil((double) listObject.size() / pageSize);
+    public void search() {
 
-        System.out.println("\u001B[32m" + "=======List " + nameTable + "=======" + "\u001B[0m");
+        try {
+            helper.clearConsole();
 
-        if (startRow >= listObject.size()) {
-            System.out.println("No more " + nameTable + " to display.");
-            return;
-        }
+            Scanner input = new Scanner(System.in);
 
-        for (int i = startRow; i < endRow; i++) {
+            Field[] fields = c.getDeclaredFields();
 
-            Field[] fields = listObject.get(i).getClass().getDeclaredFields();
+            System.out.print("Wich Column You Looking For (");
+            for (Field field : fields) {
+                System.out.print(field.getName());
+                System.out.print(",");
+            }
+            System.out.print(")");
+            System.out.println();
 
-            try {
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    String fieldName = field.getName();
-                    Object value = field.get(listObject.get(i));
-                    System.out.println(fieldName + ": " + value);
+            String whereColumn = input.next();
+
+            helper.clearConsole();
+
+            Boolean columnExist = false;
+            for (Field field : fields) {
+                if (field.getName().equals(whereColumn)) {
+                    columnExist = true;
+                    break;
                 }
-
-                System.out.println("\u001B[32m" + "======================" + "\u001B[0m");
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
 
-        }
-
-        System.out.println("Page " + (currentPage + 1) + " of " + pages);
-
-        System.out.println("1. Next Page");
-        System.out.println("2. Previous Page");
-        System.out.println("3. Exit");
-        System.out.println();
-
-        Scanner input = new Scanner(System.in);
-        int choice = input.nextInt();
-
-        switch (choice) {
-            case 1:
-                if (currentPage + 1 < pages) {
-
-                    showAll(currentPage + 1);
-
-                } else {
-                    helper.clearConsole();
-                    System.out.println("You have reached the last page");
-                    helper.stopProgramUntilButtonIsCliqued();
-
-                    showAll(currentPage);
-                }
-
-                break;
-            case 2:
-                if (currentPage > 0) {
-                    showAll(currentPage - 1);
-                } else {
-                    helper.clearConsole();
-                    System.out.println("You are already on the first page.");
-                    helper.stopProgramUntilButtonIsCliqued();
-
-                    showAll(currentPage);
-                }
-                break;
-            case 3:
-                return;
-            default:
-                helper.clearConsole();
-
-                System.out.println("wa haaaad choice makaynx :/");
-
+            if (!columnExist) {
+                System.out.println("This Column do not Exist");
                 helper.stopProgramUntilButtonIsCliqued();
-                showAll(currentPage);
+                return;
+            }
+
+            Field field = c.getField(whereColumn);
+
+            System.out.println("Write the " + whereColumn + " of the " + nameClass + "that you want to search");
+            Object value = null;
+            if (field.getType() == String.class) {
+                value = input.next();
+            }
+
+            if (field.getType() == Integer.class) {
+                value = input.nextInt();
+            }
+
+            helper.clearConsole();
+
+            if (!service.checkIfExist(nameTable, whereColumn, value)) {
+                System.out.println(nameTable + " with " + whereColumn + " " + value + " does not exist.");
+                helper.stopProgramUntilButtonIsCliqued();
+                return;
+            }
+
+            helper.clearConsole();
+
+            List<Object> objects = service.search(c, nameTable, whereColumn, value);
+
+            pagination(0, objects);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     public void show(String whereColumn, Object vlaue) {
@@ -406,119 +381,131 @@ public class View {
 
     }
 
-    public void start() {
+    public void pagination(int currentPage, List<Object> listObject) {
 
-        try {
-            Integer selectedOption = 0;
+        helper.clearConsole();
 
-            while (true) {
-                helper.clearConsole();
+        int pageSize = 5;
 
-                displayMenu(selectedOption);
+        int startRow = currentPage * pageSize;
+        int endRow = Math.min(startRow + pageSize, listObject.size());
 
-                Scanner input = new Scanner(System.in);
-                String key = input.next();
+        int pages = (int) Math.ceil((double) listObject.size() / pageSize);
 
-                if (key.equals("w") && selectedOption < options().length - 1) {
-                    selectedOption = selectedOption + 1;
+        System.out.println("\u001B[32m" + "=======List " + nameTable + "=======" + "\u001B[0m");
 
-                } else if (key.equals("s") && selectedOption >= 1) {
-                    selectedOption = selectedOption - 1;
+        if (startRow >= listObject.size()) {
+            System.out.println("No more " + nameTable + " to display.");
+            return;
+        }
 
-                } else if (key.equals("c")) {
-                    helper.clearConsole();
+        for (int i = startRow; i < endRow; i++) {
 
-                    if (selectedOption.equals(4)) {
-                        break;
-                    }
+            Field[] fields = listObject.get(i).getClass().getDeclaredFields();
 
-                    excuteChoice(selectedOption);
-
+            try {
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    String fieldName = field.getName();
+                    Object value = field.get(listObject.get(i));
+                    System.out.println(fieldName + ": " + value);
                 }
 
+                System.out.println("\u001B[32m" + "======================" + "\u001B[0m");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        System.out.println("Page " + (currentPage + 1) + " of " + pages);
+
+        System.out.println("1. Next Page");
+        System.out.println("2. Previous Page");
+        System.out.println("3. Exit");
+        System.out.println();
+
+        Scanner input = new Scanner(System.in);
+        int choice = input.nextInt();
+
+        switch (choice) {
+            case 1:
+                if (currentPage + 1 < pages) {
+
+                    pagination(currentPage + 1, listObject);
+
+                } else {
+                    helper.clearConsole();
+                    System.out.println("You have reached the last page");
+                    helper.stopProgramUntilButtonIsCliqued();
+
+                    pagination(currentPage, listObject);
+                }
+
+                break;
+            case 2:
+                if (currentPage > 0) {
+                    pagination(currentPage - 1, listObject);
+                } else {
+                    helper.clearConsole();
+                    System.out.println("You are already on the first page.");
+                    helper.stopProgramUntilButtonIsCliqued();
+
+                    pagination(currentPage, listObject);
+                }
+                break;
+            case 3:
+                return;
+            default:
                 helper.clearConsole();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-    }
+                System.out.println("wa haaaad choice makaynx :/");
 
-    public void displayMenu(int selectedOption) throws Exception {
-        System.out.println("\u001B[32m======Menu======\u001B[0m");
-        String[] options = options();
-        for (int i = 0; i < options.length; i++) {
-            if (i == selectedOption) {
-                System.out.println("\u001B[32m" + "-> " + "\u001B[0m" + options[i]);
-            } else {
-                System.out.println("   " + options[i]);
-            }
+                helper.stopProgramUntilButtonIsCliqued();
+                pagination(currentPage, listObject);
         }
     }
 
+    @Override
+    public String[] options() {
+
+        return new String[] {
+                "Add " + nameClass,
+                "Search " + nameClass,
+                "Show " + nameClass,
+                "Update " + nameClass,
+                "Delete " + nameClass,
+                "Return"
+        };
+    }
+
+    @Override
     public void excuteChoice(int choice) {
         switch (choice) {
             case 0:
                 add();
                 break;
             case 1:
-                showAll(0);
+                search();
                 break;
             case 2:
-                update(whereColumn);
+                showAll();
                 break;
             case 3:
-                delete(whereColumn);
+                update(whereColumn);
                 break;
             case 4:
-                System.out.println("Lay3awen!");
-                System.exit(0);
+                delete(whereColumn);
+                break;
+            case 5:
+                // System.exit(0);
+                MainMenu m = new MainMenu();
+                m.start();
                 break;
             default:
                 System.out.println("wa haaaad choice makaynx :/");
         }
     }
 
-    public static Class<?>[] findModels() {
-
-        try {
-
-            File packageDirectory = new File("C:\\Users\\YouCode\\Desktop\\Library\\bin\\models");
-
-            String[] files = packageDirectory.list();
-
-            Class<?>[] classes = new Class<?>[files.length];
-
-            int index = 0;
-
-            for (String file : files) {
-
-                StringBuilder sb = new StringBuilder(file);
-
-                // remove .class
-                sb.setLength(sb.length() - 6);
-
-                Class<?> c = getClass(sb.toString());
-
-                classes[index] = c;
-
-                index++;
-            }
-
-            return classes;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public static Class<?> getClass(String className) {
-        try {
-            return Class.forName("models." + className);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

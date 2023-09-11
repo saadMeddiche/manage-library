@@ -28,14 +28,5 @@ public class Status {
         this.name = name;
     }
 
-    public Status id(Integer id) {
-        setId(id);
-        return this;
-    }
-
-    public Status name(String name) {
-        setName(name);
-        return this;
-    }
 
 }

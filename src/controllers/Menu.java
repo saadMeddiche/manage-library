@@ -11,15 +11,7 @@ import views.View;
 
 public abstract class Menu {
 
-    private View view;
-    private String whereColumn;
-
     protected Menu() {
-    }
-
-    protected Menu(View view, String whereColumn) {
-        this.view = view;
-        this.whereColumn = whereColumn;
     }
 
     public void start() {
@@ -44,7 +36,7 @@ public abstract class Menu {
                 } else if (key.equals("c")) {
                     helper.clearConsole();
 
-                    if (selectedOption.equals(4)) {
+                    if (selectedOption.equals(options().length)) {
                         break;
                     }
 
@@ -60,7 +52,7 @@ public abstract class Menu {
 
     }
 
-    protected void displayMenu(int selectedOption) throws Exception {
+    public void displayMenu(int selectedOption) throws Exception {
         System.out.println("\u001B[32m======Menu======\u001B[0m");
         String[] options = options();
         for (int i = 0; i < options.length; i++) {
@@ -69,29 +61,6 @@ public abstract class Menu {
             } else {
                 System.out.println("   " + options[i]);
             }
-        }
-    }
-
-    protected void excuteChoice(int choice) {
-        switch (choice) {
-            case 0:
-                view.add();
-                break;
-            case 1:
-                view.showAll(0);
-                break;
-            case 2:
-                view.update(whereColumn);
-                break;
-            case 3:
-                view.delete(whereColumn);
-                break;
-            case 4:
-                System.out.println("Lay3awen!");
-                System.exit(0);
-                break;
-            default:
-                System.out.println("wa haaaad choice makaynx :/");
         }
     }
 
@@ -140,4 +109,5 @@ public abstract class Menu {
 
     protected abstract String[] options();
 
+    public abstract void excuteChoice(int choice);
 }

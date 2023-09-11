@@ -2,10 +2,6 @@ package controllers;
 
 import views.View;
 
-import java.lang.reflect.Method;
-
-import models.*;
-
 public class MainMenu extends Menu {
 
     @Override
@@ -30,7 +26,7 @@ public class MainMenu extends Menu {
     }
 
     @Override
-    protected void excuteChoice(int choice) {
+    public void excuteChoice(int choice) {
 
         if (choice >= 0 && choice <= options().length - 1) {
 
