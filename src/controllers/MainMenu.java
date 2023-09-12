@@ -1,5 +1,11 @@
 package controllers;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.Properties;
+
+import helpers.helper;
 import views.View;
 
 public class MainMenu extends Menu {
@@ -27,22 +33,45 @@ public class MainMenu extends Menu {
 
     @Override
     public void excuteChoice(int choice) {
+        try {
+            // If Choice is Out Of Range
+            if (choice < 0 || choice > options().length - 1) {
+                helper.clearConsole();
+                System.out.println("Invalid choice.");
+                helper.stopProgramUntilButtonIsCliqued();
+                return;
+            }
 
-        if (choice >= 0 && choice <= options().length - 1) {
-
+            // If user choosed Exit
             if (options().length - 1 == choice) {
+                System.out.println("Lay3awen");
                 System.exit(0);
-            } else {
-                Class<?>[] classes = findModels();
-                Class<?> c = classes[choice];
+            }
 
-                View view = new View(c);
+            Class<?>[] classes = findModels();
+            Class<?> c = classes[choice];
+
+            InputStream input = new FileInputStream("src/config/view.properties");
+            Properties prop = new Properties();
+            prop.load(input);
+
+            String viewClassName = prop.getProperty(c.getSimpleName());
+
+            if (viewClassName != null) {
+
+                Class<?> viewClass = Class.forName(viewClassName);
+
+                View view = (View) viewClass.getDeclaredConstructor().newInstance();
+
                 view.start();
 
+                return;
             }
-        } else {
-            System.out.println("Invalid choice.");
 
+            View view = new View(c);
+            view.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }

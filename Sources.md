@@ -73,3 +73,7 @@ Source 1 : https://www.geeksforgeeks.org/file-class-in-java/
 Source 1 : https://www.geeksforgeeks.org/class-forname-method-in-java-with-examples/
 
 Source 2 : https://www.baeldung.com/java-find-all-classes-in-package
+
+# Properties File In Java
+
+Source : https://mkyong.com/java/java-properties-file-examples/

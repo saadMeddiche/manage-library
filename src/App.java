@@ -23,19 +23,10 @@ public class App {
 
     public static void main(String[] args) throws Exception {
 
-        // MainMenu m = new MainMenu();
-        // m.start();
+     
+        MainMenu m = new MainMenu();
+        m.start();
 
-        Class<?> c = Book.class;
-
-        // System.out.println(c.getTypeName());
-
-        Method method = c.getMethod("special");
-        Object result = method.invoke(null).toString();
-        System.out.println(result);
-
-        // String x = service.get_referenced_table_name("borrowedbooks", "book_id");
-        // System.out.println(x);
     }
 
 }
