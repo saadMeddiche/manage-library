@@ -11,6 +11,7 @@ import helpers.helper;
 import services.Service;
 import controllers.MainMenu;
 import controllers.Menu;
+import java.sql.Date;
 
 public class View extends Menu {
 
@@ -164,58 +165,47 @@ public class View extends Menu {
             int index = 0;
             for (Field field : fields) {
 
+                // If The Field Is The Id
                 if (field.getName().equals("id")) {
-
                     Values[index] = null;
+                    continue;
+                }
 
-                } else {
+                String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
 
-                    String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+                // Check If The field have a referenced_table_name
+                if (referenced_table_name != null) {
 
-                    if (referenced_table_name == null) {
-                        System.out.println("Add " + field.getName() + " Of " + nameClass);
+                    StringBuilder sb = new StringBuilder(referenced_table_name);
+                    sb.setLength(sb.length() - 1);
+                    String referenced_class_name = sb.toString();
 
-                        if (field.getType() == String.class) {
-                            String value = input.next();
-                            Values[index] = value;
-                        }
+                    Class<?> claxx = getClass(referenced_class_name);
 
-                        if (field.getType() == Integer.class) {
-                            Integer value = Integer.parseInt(input.next());
-                            Values[index] = value;
-                        }
+                    String whereColumn = getSpecial(claxx);
 
-                    } else {
+                    System.out.println("Add " + whereColumn + " Of " + claxx.getSimpleName());
 
-                        StringBuilder sb = new StringBuilder(referenced_table_name);
-                        sb.setLength(sb.length() - 1);
-                        String referenced_class_name = sb.toString();
+                    String v = input.next().toString();
 
-                        Class<?> claxx = getClass(referenced_class_name);
-
-                        String whereColumn = getSpecial(claxx);
-
-                        System.out.println("Add " + whereColumn + " Of " + claxx.getSimpleName());
-
-                        String v = input.next().toString();
-
-                        if (!checkIfExist(referenced_table_name, whereColumn, v)) {
-                            return;
-                        }
-
-                        Object object = service.find(claxx, referenced_table_name, whereColumn, v);
-
-                        Method getIdMethod = object.getClass().getMethod("getId");
-
-                        Object id = getIdMethod.invoke(object);
-
-                        Values[index] = id;
-
+                    if (!checkIfExist(referenced_table_name, whereColumn, v)) {
+                        return;
                     }
 
-                    // index++;
+                    Object object = service.find(claxx, referenced_table_name, whereColumn, v);
+
+                    Method getIdMethod = object.getClass().getMethod("getId");
+
+                    Object id = getIdMethod.invoke(object);
+
+                    Values[index] = id;
+
+                    continue;
 
                 }
+
+                System.out.println("Add " + field.getName() + " Of " + nameClass);
+                Values[index] = getInput(input, field);
 
                 index++;
 
@@ -251,14 +241,7 @@ public class View extends Menu {
             Object value = null;
 
             System.out.println("Write the " + whereColumn + " of the " + nameClass + " that you want to update");
-
-            if (field.getType() == String.class) {
-                value = input.nextLine();
-            }
-
-            if (field.getType() == Integer.class) {
-                value = input.nextInt();
-            }
+            value = getInput(input, field);
 
             helper.clearConsole();
 
@@ -287,14 +270,10 @@ public class View extends Menu {
             int numeration = 1;
 
             for (Field f : fields) {
-
-                if (f.getName() == "id") {
-                    continue;
+                if (!f.getName().equals("id")) {
+                    System.out.println(numeration + ". " + f.getName());
+                    numeration++;
                 }
-
-                System.out.println(numeration + ". " + f.getName());
-                numeration++;
-
             }
             System.out.println(numeration + ". All of the above");
 
@@ -303,7 +282,7 @@ public class View extends Menu {
 
             // If Choice Is Out Of Range
             if (choice < 1 && choice > fields.length + 1) {
-                System.out.println("Invalid choice.");
+                System.out.println("Invalid choice");
                 return;
             }
 
@@ -311,40 +290,18 @@ public class View extends Menu {
 
                 for (Field f : fields) {
 
-                    Object nv = null;
-
-                    if (f.getName() == "id") {
-                        f.set(object, null);
-                        continue;
+                    if (!f.getName().equals("id")) {
+                        System.out.print("Enter the new value for " + f.getName() + ": ");
+                        Object nv = getInput(input, f);
+                        f.set(object, nv);
                     }
-
-                    System.out.print("Enter the new value for " + f.getName() + ": ");
-
-                    if (f.getType() == String.class) {
-                        nv = input.next();
-                    }
-
-                    if (f.getType() == Integer.class) {
-                        nv = input.nextInt();
-                    }
-
-                    f.set(object, nv);
                 }
 
             } else {
 
                 Field selectedField = fields[choice];
                 System.out.print("Enter the new value for " + selectedField.getName() + ": ");
-                Object newValue = null;
-                Scanner scann = new Scanner(System.in);
-
-                if (selectedField.getType() == String.class) {
-                    newValue = scann.nextLine();
-                }
-
-                if (selectedField.getType() == Integer.class) {
-                    newValue = scann.nextInt();
-                }
+                Object newValue = getInput(input, field);
 
                 selectedField.set(object, newValue);
             }
@@ -551,6 +508,35 @@ public class View extends Menu {
         }
 
         return true;
+    }
+
+    public static Object getInput(Scanner input, Field field) {
+        while (true) {
+            switch (field.getType().getSimpleName()) {
+                case "String":
+                    String stringValue = input.next();
+                    return stringValue;
+                case "Integer":
+                    try {
+                        Integer integerValue = Integer.parseInt(input.next());
+                        return integerValue;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Please enter a valid Integer value for " + field.getName());
+                    }
+                    break;
+                case "Long":
+                    try {
+                        Long longValue = Long.parseLong(input.next());
+                        return longValue;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Please enter a valid Long value for " + field.getName());
+                    }
+                    break;
+                default:
+                    System.out.println("Had Type ga3 makayn");
+                    break;
+            }
+        }
     }
 
 }

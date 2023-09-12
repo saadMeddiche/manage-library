@@ -23,10 +23,10 @@ CREATE TABLE
 CREATE TABLE
     BorrowedBooks (
         id INT PRIMARY KEY AUTO_INCREMENT,
-        book_id INT,
-        client_id INT,
-        date_borrow_start DATETIME,
-        date_borrow_end DATETIME,
+        book_id INT NOT NULL,
+        client_id INT NOT NULL,
+        date_borrow_start VARCHAR(20) NOT NULL,
+        date_borrow_end VARCHAR(20) NOT NULL,
         price INT,
         FOREIGN KEY (book_id) REFERENCES Books(id),
         FOREIGN KEY (client_id) REFERENCES Clients(id)
@@ -37,8 +37,6 @@ CREATE TABLE
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(255) NOT NULL
     );
-
-
 
 CREATE TABLE
     Rapports (
@@ -53,7 +51,7 @@ CREATE TABLE
 --Trigger
 
 CREATE TRIGGER BORROWBOOK 
-	BORROWBOOK BORROWBOOK BORROWBOOK AFTER
+	BORROWBOOK BORROWBOOK BORROWBOOK BORROWBOOK BORROWBOOK BORROWBOOK AFTER
 	INSERT
 	    on BorrowedBooks for each row
 	UPDATE books
@@ -62,6 +60,16 @@ CREATE TRIGGER BORROWBOOK
 	WHERE
 	    books.id = NEW.book_id
 	    AND books.quantite > 0;
+
+
+CREATE TRIGGER RETURNBOOK 
+	RETURNBOOK RETURNBOOK RETURNBOOK RETURNBOOK RETURNBOOK RETURNBOOK AFTER
+	DELETE
+	    ON BorrowedBooks FOR EACH ROW
+	UPDATE books
+	SET
+	    `quantite` = books.quantite + 1
+	WHERE books.id = OLD.book_id;
 
 
 INSERT INTO

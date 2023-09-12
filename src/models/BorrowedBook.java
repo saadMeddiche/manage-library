@@ -1,6 +1,13 @@
 package models;
 
+
 public class BorrowedBook {
+    public Integer id;
+    public Integer book_id;
+    public Integer client_id;
+    public String date_borrow_start;
+    public String date_borrow_end;
+    public Integer price;
 
     public BorrowedBook() {
     }
@@ -67,10 +74,4 @@ public class BorrowedBook {
         return "id";
     }
 
-    public Integer id;
-    public Integer book_id;
-    public Integer client_id;
-    public String date_borrow_start;
-    public String date_borrow_end;
-    public Integer price;
 }

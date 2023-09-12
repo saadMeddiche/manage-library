@@ -69,7 +69,9 @@ public class MainMenu extends Menu {
             }
 
             View view = new View(c);
+            
             view.start();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
