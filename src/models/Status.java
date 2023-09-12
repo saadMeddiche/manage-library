@@ -28,7 +28,7 @@ public class Status {
         this.name = name;
     }
 
-    public String special() {
+    public static String special() {
         return "name";
     }
 

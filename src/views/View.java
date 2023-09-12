@@ -35,15 +35,10 @@ public class View extends Menu {
     public String getSpecial(Class<?> clazz) {
 
         try {
-            Object obj = clazz.newInstance();
 
-            Method[] methods = clazz.getDeclaredMethods();
+            Method method = clazz.getMethod("special");
+            return method.invoke(null).toString();
 
-            for (Method method : methods) {
-                if (method.getName().equals("special")) {
-                    return method.invoke(obj).toString();
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -63,7 +63,7 @@ public class BorrowedBook {
         this.price = price;
     }
 
-    public String special() {
+    public static String special() {
         return "id";
     }
 
