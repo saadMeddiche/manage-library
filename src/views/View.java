@@ -314,15 +314,32 @@ public class View extends Menu {
 
             helper.clearConsole();
 
-            System.out.println("Write The " + field.getName() + " Of The " + nameClass + " That You Want to Delete");
+            Object value = 0;
 
-            Object value = getInput(input, field);
+            while (true) {
 
-            if (!checkIfExist(nameTable, field.getName(), value)) {
-                return;
+                System.out
+                        .println("Write The " + field.getName() + " Of The " + nameClass + " That You Want to Delete");
+
+                value = getInput(input, field);
+
+                helper.clearConsole();
+
+                if (!checkIfExist(nameTable, field.getName(), value)) {
+                    helper.clearConsole();
+                    continue;
+                }
+
+                break;
             }
 
             helper.clearConsole();
+
+            System.out.println("==========================================");
+            System.out.println("Is This The " + nameClass + " That You Want To Delete ?");
+            System.out.println("==========================================");
+
+            show(field.getName(), value);
 
             if (!helper.wannaContinue()) {
                 return;
