@@ -11,7 +11,6 @@ import helpers.helper;
 import services.Service;
 import controllers.MainMenu;
 import controllers.Menu;
-import java.sql.Date;
 
 public class View extends Menu {
 
@@ -61,56 +60,23 @@ public class View extends Menu {
 
             Scanner input = new Scanner(System.in);
 
-            Field[] fields = c.getDeclaredFields();
-
-            System.out.print("Wich Column You Looking For (");
-            for (Field field : fields) {
-                System.out.print(field.getName());
-                System.out.print(",");
-            }
-            System.out.print(")");
-            System.out.println();
-
-            String whereColumn = input.next();
+            Field field = chooseColumn(c, input);
 
             helper.clearConsole();
 
-            Boolean columnExist = false;
-            for (Field field : fields) {
-                if (field.getName().equals(whereColumn)) {
-                    columnExist = true;
-                    break;
-                }
-            }
+            System.out.println("Write the " + field.getName() + " of the " + nameClass + "that you want to search");
 
-            if (!columnExist) {
-                System.out.println("This Column do not Exist");
-                helper.stopProgramUntilButtonIsCliqued();
-                return;
-            }
-
-            Field field = c.getField(whereColumn);
-
-            System.out.println("Write the " + whereColumn + " of the " + nameClass + "that you want to search");
-
-            Object value = null;
-            if (field.getType() == String.class) {
-                value = input.next();
-            }
-
-            if (field.getType() == Integer.class) {
-                value = input.nextInt();
-            }
+            Object value = getInput(input, field);
 
             helper.clearConsole();
 
-            if (!checkIfExist(nameTable, whereColumn, value)) {
+            if (!checkIfExist(nameTable, field.getName(), value)) {
                 return;
             }
 
             helper.clearConsole();
 
-            List<Object> objects = service.search(c, nameTable, whereColumn, value);
+            List<Object> objects = service.search(c, nameTable, field.getName(), value);
 
             pagination(0, objects);
 
@@ -151,23 +117,18 @@ public class View extends Menu {
 
             Field[] fields = c.getDeclaredFields();
 
-            // Source :
-            // https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/
-            Class<?>[] fieldTypes = new Class<?>[fields.length];
-
-            for (int i = 0; i < fields.length; i++) {
-                fields[i].setAccessible(true);
-                fieldTypes[i] = fields[i].getType();
-            }
+            Class<?>[] fieldTypes = getFieldTypes(fields);
 
             Object[] Values = new Object[fields.length];
 
             int index = 0;
+
             for (Field field : fields) {
 
                 // If The Field Is The Id
                 if (field.getName().equals("id")) {
                     Values[index] = null;
+                    index++;
                     continue;
                 }
 
@@ -231,21 +192,22 @@ public class View extends Menu {
 
     }
 
-    public void update(String whereColumn) {
+    public void update() {
 
         try {
             Scanner input = new Scanner(System.in);
 
-            Field field = c.getField(whereColumn);
-
-            Object value = null;
-
-            System.out.println("Write the " + whereColumn + " of the " + nameClass + " that you want to update");
-            value = getInput(input, field);
+            Field field = chooseColumn(c, input);
 
             helper.clearConsole();
 
-            if (!checkIfExist(nameTable, whereColumn, value)) {
+            System.out.println("Write the " + field.getName() + " of the " + nameClass + " that you want to update");
+
+            Object value = getInput(input, field);
+
+            helper.clearConsole();
+
+            if (!checkIfExist(nameTable, field.getName(), value)) {
                 return;
             }
 
@@ -255,9 +217,9 @@ public class View extends Menu {
             System.out.println("Is This The " + nameClass + " That You Want To Update ?");
             System.out.println("==========================================");
 
-            Object object = service.find(c, nameTable, whereColumn, value);
+            Object object = service.find(c, nameTable, field.getName(), value);
 
-            show(whereColumn, value);
+            show(field.getName(), value);
 
             if (!helper.wannaContinue()) {
                 return;
@@ -306,7 +268,7 @@ public class View extends Menu {
                 selectedField.set(object, newValue);
             }
 
-            Boolean updatedSuccessfully = service.update(object, nameTable, whereColumn, value);
+            Boolean updatedSuccessfully = service.update(object, nameTable, field.getName(), value);
 
             helper.clearConsole();
 
@@ -323,28 +285,21 @@ public class View extends Menu {
 
     }
 
-    public void delete(String whereColumn) {
+    public void delete() {
 
         try {
-            Field field = c.getField(whereColumn);
 
             Scanner input = new Scanner(System.in);
 
-            Object value = null;
+            Field field = chooseColumn(c, input);
 
-            System.out.println("===================================================");
-            System.out.println("Write The " + whereColumn + " Of The " + nameClass + " That You Want to Delete");
-            System.out.println("===================================================");
+            helper.clearConsole();
 
-            if (field.getType() == String.class) {
-                value = input.nextLine();
-            }
+            System.out.println("Write The " + field.getName() + " Of The " + nameClass + " That You Want to Delete");
 
-            if (field.getType() == Integer.class) {
-                value = input.nextInt();
-            }
+            Object value = getInput(input, field);
 
-            if (!checkIfExist(nameTable, whereColumn, value)) {
+            if (!checkIfExist(nameTable, field.getName(), value)) {
                 return;
             }
 
@@ -356,12 +311,12 @@ public class View extends Menu {
 
             helper.clearConsole();
 
-            Boolean deletedSuccessfuly = service.destroy(nameTable, whereColumn, value);
+            Boolean deletedSuccessfuly = service.destroy(nameTable, field.getName(), value);
 
             if (deletedSuccessfuly) {
-                System.out.println(nameClass + " with " + whereColumn + " " + value + " has been deleted.");
+                System.out.println(nameClass + " with " + field.getName() + " " + value + " has been deleted.");
             } else {
-                System.out.println(nameClass + " with " + whereColumn + " " + value + " does not exist.");
+                System.out.println(nameClass + " with " + field.getName() + " " + value + " does not exist.");
             }
 
             helper.stopProgramUntilButtonIsCliqued();
@@ -482,10 +437,10 @@ public class View extends Menu {
                 showAll();
                 break;
             case 3:
-                update(whereColumn);
+                update();
                 break;
             case 4:
-                delete(whereColumn);
+                delete();
                 break;
             case 5:
                 // System.exit(0);
@@ -495,6 +450,38 @@ public class View extends Menu {
             default:
                 System.out.println("wa haaaad choice makaynx :/");
         }
+    }
+
+    public Field chooseColumn(Class<?> c, Scanner input) {
+
+        Field[] fields = c.getDeclaredFields();
+
+        while (true) {
+            System.out.print("Wich Column You Looking For (");
+            for (Field field : fields) {
+                System.out.print(field.getName());
+                System.out.print(",");
+            }
+            System.out.print(")");
+            System.out.println();
+
+            String whereColumn = input.next();
+
+            helper.clearConsole();
+
+            try {
+                Field field = c.getField(whereColumn);
+                return field;
+            } catch (NoSuchFieldException e) {
+                helper.clearConsole();
+                System.out.println("This Column do not Exist");
+                helper.stopProgramUntilButtonIsCliqued();
+                helper.clearConsole();
+                continue;
+            }
+
+        }
+
     }
 
     public Boolean checkIfExist(String nameTable, String whereColumn, Object value) {
@@ -514,7 +501,7 @@ public class View extends Menu {
         while (true) {
             switch (field.getType().getSimpleName()) {
                 case "String":
-                    String stringValue = input.next();
+                    String stringValue = input.nextLine();
                     return stringValue;
                 case "Integer":
                     try {
@@ -537,6 +524,20 @@ public class View extends Menu {
                     break;
             }
         }
+    }
+
+    private Class<?>[] getFieldTypes(Field[] fields) {
+
+        // Source :
+        // https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/
+        Class<?>[] fieldTypes = new Class<?>[fields.length];
+
+        for (int i = 0; i < fields.length; i++) {
+            fields[i].setAccessible(true);
+            fieldTypes[i] = fields[i].getType();
+        }
+
+        return fieldTypes;
     }
 
 }

@@ -1,6 +1,5 @@
 package views;
 
-import controllers.MainMenu;
 import models.BorrowedBook;
 
 public class BorrowedBookView extends View {

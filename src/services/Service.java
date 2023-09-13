@@ -188,7 +188,6 @@ public class Service {
 
     public Object find(Class<?> c, String table, String whereColumn, Object value) {
 
-        Object obj = null;
         try {
 
             String query = "SELECT * FROM " + table + " WHERE " + whereColumn + "=?";
@@ -223,13 +222,14 @@ public class Service {
             }
 
             Constructor<?> constructor = c.getConstructor(fieldTypes);
-            obj = constructor.newInstance(fieldValues);
+            Object obj = constructor.newInstance(fieldValues);
 
+            return obj;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return obj;
+        return null;
 
     }
 
