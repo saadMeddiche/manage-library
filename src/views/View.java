@@ -64,14 +64,19 @@ public class View extends Menu {
 
             helper.clearConsole();
 
-            System.out.println("Write the " + field.getName() + " of the " + nameClass + "that you want to search");
+            Object value = null;
+            while (true) {
+                System.out.println("Write the " + field.getName() + " of the " + nameClass + "that you want to search");
 
-            Object value = getInput(input, field);
+                value = getInput(input, field);
 
-            helper.clearConsole();
+                helper.clearConsole();
 
-            if (!checkIfExist(nameTable, field.getName(), value)) {
-                return;
+                if (!checkIfExist(nameTable, field.getName(), value)) {
+                    helper.clearConsole();
+                    continue;
+                }
+                break;
             }
 
             helper.clearConsole();
@@ -199,16 +204,24 @@ public class View extends Menu {
 
             Field field = chooseColumn(c, input);
 
-            helper.clearConsole();
-
-            System.out.println("Write the " + field.getName() + " of the " + nameClass + " that you want to update");
-
-            Object value = getInput(input, field);
+            Object value = null;
 
             helper.clearConsole();
 
-            if (!checkIfExist(nameTable, field.getName(), value)) {
-                return;
+            while (true) {
+                System.out
+                        .println("Write the " + field.getName() + " of the " + nameClass + " that you want to update");
+
+                value = getInput(input, field);
+
+                helper.clearConsole();
+
+                if (!checkIfExist(nameTable, field.getName(), value)) {
+                    helper.clearConsole();
+                    continue;
+                }
+
+                break;
             }
 
             helper.clearConsole();
@@ -239,13 +252,19 @@ public class View extends Menu {
             }
             System.out.println(numeration + ". All of the above");
 
-            System.out.print("Enter your choice: ");
-            int choice = input.nextInt();
+            int choice = 0;
+            while (true) {
+                System.out.print("Enter your choice: ");
+                choice = Integer.parseInt(input.nextLine());
 
-            // If Choice Is Out Of Range
-            if (choice < 1 && choice > fields.length + 1) {
-                System.out.println("Invalid choice");
-                return;
+                // If Choice Is Out Of Range)
+                if (choice < 1 || choice >= fields.length + 1) {
+                    System.out.println("Invalid choice");
+                    helper.stopProgramUntilButtonIsCliqued();
+                    continue;
+                }
+
+                break;
             }
 
             if (choice == numeration) {
@@ -263,7 +282,7 @@ public class View extends Menu {
 
                 Field selectedField = fields[choice];
                 System.out.print("Enter the new value for " + selectedField.getName() + ": ");
-                Object newValue = getInput(input, field);
+                Object newValue = getInput(input, selectedField);
 
                 selectedField.set(object, newValue);
             }
@@ -273,7 +292,7 @@ public class View extends Menu {
             helper.clearConsole();
 
             if (updatedSuccessfully) {
-                System.out.println(nameClass + " with " + whereColumn + " " + value + " has been updated.");
+                System.out.println(nameClass + " with " + field.getName() + " " + value + " has been updated.");
             } else {
                 System.out.println("Something Went Wrong");
             }
@@ -465,7 +484,7 @@ public class View extends Menu {
             System.out.print(")");
             System.out.println();
 
-            String whereColumn = input.next();
+            String whereColumn = input.nextLine();
 
             helper.clearConsole();
 
