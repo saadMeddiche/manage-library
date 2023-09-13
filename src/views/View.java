@@ -4,7 +4,9 @@ package views;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import helpers.helper;
@@ -209,8 +211,45 @@ public class View extends Menu {
             helper.clearConsole();
 
             while (true) {
+                String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+
+                // Check If The field have a referenced_table_name
+                if (referenced_table_name != null) {
+
+                    StringBuilder sb = new StringBuilder(referenced_table_name);
+                    sb.setLength(sb.length() - 1);
+                    String referenced_class_name = sb.toString();
+
+                    Class<?> claxx = getClass(referenced_class_name);
+                    String Column = getSpecial(claxx);
+
+                    System.out
+                            .println("Write the " + Column + " of the "
+                                    + referenced_class_name);
+
+                    value = getInput(input, field);
+
+                    if (!checkIfExist(referenced_table_name, Column, value)) {
+                        helper.clearConsole();
+                        continue;
+                    }
+
+                    Object object = service.find(claxx,
+                            referenced_table_name,
+                            Column, value);
+
+                    Method getIdMethod = object.getClass().getMethod("getId");
+
+                    Object id = getIdMethod.invoke(object);
+
+                    value = id;
+
+                    break;
+                }
+
                 System.out
-                        .println("Write the " + field.getName() + " of the " + nameClass + " that you want to update");
+                        .println("Write the " + field.getName() + " of the "
+                                + field.getDeclaringClass().getSimpleName());
 
                 value = getInput(input, field);
 
@@ -245,7 +284,26 @@ public class View extends Menu {
             int numeration = 1;
 
             for (Field f : fields) {
+
                 if (!f.getName().equals("id")) {
+
+                    String referenced_table_name = service.get_referenced_table_name(nameTable, f.getName());
+
+                    // Check If The field have a referenced_table_name
+                    if (referenced_table_name != null) {
+
+                        StringBuilder sb = new StringBuilder(referenced_table_name);
+                        sb.setLength(sb.length() - 1);
+                        String referenced_class_name = sb.toString();
+
+                        Class<?> claxx = getClass(referenced_class_name);
+                        String Column = getSpecial(claxx);
+                        System.out.println(numeration + ". " + Column);
+
+                        numeration++;
+                        continue;
+                    }
+
                     System.out.println(numeration + ". " + f.getName());
                     numeration++;
                 }
@@ -272,6 +330,45 @@ public class View extends Menu {
                 for (Field f : fields) {
 
                     if (!f.getName().equals("id")) {
+                        String referenced_table_name = service.get_referenced_table_name(nameTable, f.getName());
+
+                        // Check If The field have a referenced_table_name
+                        if (referenced_table_name != null) {
+
+                            StringBuilder sb = new StringBuilder(referenced_table_name);
+                            sb.setLength(sb.length() - 1);
+                            String referenced_class_name = sb.toString();
+
+                            Class<?> claxx = getClass(referenced_class_name);
+                            String Column = getSpecial(claxx);
+                            Object nv = null;
+                            while (true) {
+                                System.out.print("Enter the new value for " + Column + ": ");
+                                nv = getInput(input, f);
+
+                                if (!checkIfExist(referenced_table_name, Column, nv)) {
+                                    helper.clearConsole();
+                                    continue;
+                                }
+
+                                break;
+                            }
+
+                            Object obj = service.find(claxx,
+                                    referenced_table_name,
+                                    Column, nv);
+
+                            Method getIdMethod = obj.getClass().getMethod("getId");
+
+                            Object id = getIdMethod.invoke(obj);
+
+                            nv = id;
+
+                            f.set(object, nv);
+
+                            continue;
+                        }
+
                         System.out.print("Enter the new value for " + f.getName() + ": ");
                         Object nv = getInput(input, f);
                         f.set(object, nv);
@@ -281,10 +378,50 @@ public class View extends Menu {
             } else {
 
                 Field selectedField = fields[choice];
-                System.out.print("Enter the new value for " + selectedField.getName() + ": ");
-                Object newValue = getInput(input, selectedField);
 
-                selectedField.set(object, newValue);
+                String referenced_table_name = service.get_referenced_table_name(nameTable, selectedField.getName());
+
+                // Check If The field have a referenced_table_name
+                if (referenced_table_name != null) {
+
+                    StringBuilder sb = new StringBuilder(referenced_table_name);
+                    sb.setLength(sb.length() - 1);
+                    String referenced_class_name = sb.toString();
+
+                    Class<?> claxx = getClass(referenced_class_name);
+                    String Column = getSpecial(claxx);
+                    Object nv = null;
+                    while (true) {
+                        System.out.print("Enter the new value for " + Column + ": ");
+                        nv = getInput(input, selectedField);
+
+                        if (!checkIfExist(referenced_table_name, Column, nv)) {
+                            helper.clearConsole();
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    Object obj = service.find(claxx,
+                            referenced_table_name,
+                            Column, nv);
+
+                    Method getIdMethod = obj.getClass().getMethod("getId");
+
+                    Object id = getIdMethod.invoke(obj);
+
+                    nv = id;
+
+                    selectedField.set(obj, nv);
+
+                } else {
+                    System.out.print("Enter the new value for " + selectedField.getName() + ": ");
+                    Object newValue = getInput(input, selectedField);
+
+                    selectedField.set(object, newValue);
+                }
+
             }
 
             Boolean updatedSuccessfully = service.update(object, nameTable, field.getName(), value);
@@ -492,12 +629,37 @@ public class View extends Menu {
 
         Field[] fields = c.getDeclaredFields();
 
+        Map<String, Field> fakeAndRealFileds = new HashMap<>();
+
         while (true) {
+
             System.out.print("Wich Column You Looking For (");
             for (Field field : fields) {
+
+                String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+
+                // Check If The field have a referenced_table_name
+                if (referenced_table_name != null) {
+
+                    StringBuilder sb = new StringBuilder(referenced_table_name);
+                    sb.setLength(sb.length() - 1);
+                    String referenced_class_name = sb.toString();
+
+                    Class<?> claxx = getClass(referenced_class_name);
+                    String Column = getSpecial(claxx);
+
+                    fakeAndRealFileds.put(Column, field);
+
+                    System.out.print(Column);
+                    System.out.print(",");
+                    continue;
+                }
+
+                fakeAndRealFileds.put(field.getName(), field);
                 System.out.print(field.getName());
                 System.out.print(",");
             }
+
             System.out.print(")");
             System.out.println();
 
@@ -505,17 +667,16 @@ public class View extends Menu {
 
             helper.clearConsole();
 
-            try {
-                Field field = c.getField(whereColumn);
+            Field field = fakeAndRealFileds.get(whereColumn);
+
+            if (field != null) {
                 return field;
-            } catch (NoSuchFieldException e) {
-                helper.clearConsole();
-                System.out.println("This Column do not Exist");
-                helper.stopProgramUntilButtonIsCliqued();
-                helper.clearConsole();
-                continue;
             }
 
+            helper.clearConsole();
+            System.out.println("This Column do not Exist");
+            helper.stopProgramUntilButtonIsCliqued();
+            helper.clearConsole();
         }
 
     }
@@ -533,7 +694,27 @@ public class View extends Menu {
         return true;
     }
 
-    public static Object getInput(Scanner input, Field field) {
+    public Object getInput(Scanner input, Field field) {
+
+        String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+
+        // Check If The field have a referenced_table_name
+        if (referenced_table_name != null) {
+
+            StringBuilder sb = new StringBuilder(referenced_table_name);
+            sb.setLength(sb.length() - 1);
+            String referenced_class_name = sb.toString();
+
+            Class<?> claxx = getClass(referenced_class_name);
+            String Column = getSpecial(claxx);
+            try {
+                field = claxx.getField(Column);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
         while (true) {
             switch (field.getType().getSimpleName()) {
                 case "String":
@@ -541,7 +722,7 @@ public class View extends Menu {
                     return stringValue;
                 case "Integer":
                     try {
-                        Integer integerValue = Integer.parseInt(input.next());
+                        Integer integerValue = Integer.parseInt(input.nextLine());
                         return integerValue;
                     } catch (NumberFormatException e) {
                         System.out.println("Please enter a valid Integer value for " + field.getName());
@@ -549,7 +730,7 @@ public class View extends Menu {
                     break;
                 case "Long":
                     try {
-                        Long longValue = Long.parseLong(input.next());
+                        Long longValue = Long.parseLong(input.nextLine());
                         return longValue;
                     } catch (NumberFormatException e) {
                         System.out.println("Please enter a valid Long value for " + field.getName());
