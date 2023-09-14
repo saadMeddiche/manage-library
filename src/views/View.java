@@ -442,25 +442,47 @@ public class View extends Menu {
 
         try {
 
+            helper.clearConsole();
+
             Scanner input = new Scanner(System.in);
 
             Field field = chooseColumn(c, input);
 
-            helper.clearConsole();
+            Object value = null;
 
-            Object value = 0;
+            Map<String, Object> results = referencedFields(nameTable, field);
+
+            String special_column = results.get("special_column").toString();
+            String class_name = results.get("class_name").toString();
+            String table_name = results.get("table_name").toString();
+            Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
             while (true) {
 
-                System.out
-                        .println("Write The " + field.getName() + " Of The " + nameClass + " That You Want to Delete");
+                System.out.println("Write the " + special_column + " of the " + class_name);
 
                 value = getInput(input, field);
+
+                if (referenced) {
+
+                    Class<?> claxx = getClass(class_name);
+
+                    if (!checkIfExist(table_name, special_column, value)) {
+                        continue;
+                    }
+
+                    Object object = service.find(claxx, table_name, special_column, value);
+
+                    Method getIdMethod = object.getClass().getMethod("getId");
+
+                    Object id = getIdMethod.invoke(object);
+
+                    value = id;
+                }
 
                 helper.clearConsole();
 
                 if (!checkIfExist(nameTable, field.getName(), value)) {
-                    helper.clearConsole();
                     continue;
                 }
 
@@ -486,9 +508,9 @@ public class View extends Menu {
             Boolean deletedSuccessfuly = service.destroy(nameTable, field.getName(), value);
 
             if (deletedSuccessfuly) {
-                System.out.println(nameClass + " with " + field.getName() + " " + value + " has been deleted.");
+                System.out.println(nameClass + "  has been deleted.");
             } else {
-                System.out.println(nameClass + " with " + field.getName() + " " + value + " does not exist.");
+                System.out.println(nameClass + "  does not exist.");
             }
 
             helper.stopProgramUntilButtonIsCliqued();
