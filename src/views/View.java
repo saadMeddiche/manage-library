@@ -67,15 +67,38 @@ public class View extends Menu {
             helper.clearConsole();
 
             Object value = null;
+
+            Map<String, Object> results = referencedFields(nameTable, field);
+
+            String special_column = results.get("special_column").toString();
+            String class_name = results.get("class_name").toString();
+            String table_name = results.get("table_name").toString();
+            Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
+
             while (true) {
-                System.out.println("Write the " + field.getName() + " of the " + nameClass + "that you want to search");
+                System.out.println("Write the " + special_column + " of the " + class_name + "that you want to search");
 
                 value = getInput(input, field);
+
+                if (referenced) {
+                    Class<?> claxx = getClass(class_name);
+
+                    if (!checkIfExist(table_name, special_column, value)) {
+                        continue;
+                    }
+
+                    Object object = service.find(claxx, table_name, special_column, value);
+
+                    Method getIdMethod = object.getClass().getMethod("getId");
+
+                    Object id = getIdMethod.invoke(object);
+
+                    value = id;
+                }
 
                 helper.clearConsole();
 
                 if (!checkIfExist(nameTable, field.getName(), value)) {
-                    helper.clearConsole();
                     continue;
                 }
                 break;
@@ -93,13 +116,7 @@ public class View extends Menu {
 
     }
 
-    public void show(String whereColumn, Object value) {
-
-        if (!checkIfExist(nameTable, whereColumn, value)) {
-            return;
-        }
-
-        Object object = service.find(c, nameTable, whereColumn, value);
+    public void show(Object object) {
 
         Field[] fields = object.getClass().getDeclaredFields();
 
@@ -115,9 +132,7 @@ public class View extends Menu {
                 String table_name = results.get("table_name").toString();
                 Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
-                Object v = null;
-
-                v = field.get(object);
+                Object value = field.get(object);
 
                 if (referenced) {
                     Class<?> claxx = getClass(class_name);
@@ -125,10 +140,10 @@ public class View extends Menu {
                     Object obj = service.find(claxx, table_name, "id", value);
 
                     Field f = claxx.getDeclaredField(special_column);
-                    v = f.get(obj);
+                    value = f.get(obj);
                 }
 
-                System.out.println(special_column + ": " + v);
+                System.out.println(special_column + ": " + value);
             }
 
         } catch (Exception e) {
@@ -276,7 +291,7 @@ public class View extends Menu {
 
             Object object = service.find(c, nameTable, field.getName(), value);
 
-            show(field.getName(), value);
+            show(object);
 
             if (!helper.wannaContinue()) {
                 return;
@@ -458,7 +473,9 @@ public class View extends Menu {
             System.out.println("Is This The " + nameClass + " That You Want To Delete ?");
             System.out.println("==========================================");
 
-            show(field.getName(), value);
+            Object object = service.find(c, nameTable, field.getName(), value);
+
+            show(object);
 
             if (!helper.wannaContinue()) {
                 return;
@@ -526,7 +543,7 @@ public class View extends Menu {
                         Field f = claxx.getDeclaredField(special_column);
                         value = f.get(obj);
                     }
-                    
+
                     System.out.println(special_column + ": " + value);
                 }
 
