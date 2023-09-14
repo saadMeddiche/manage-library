@@ -202,61 +202,47 @@ public class View extends Menu {
     public void update() {
 
         try {
+            helper.clearConsole();
+
             Scanner input = new Scanner(System.in);
 
             Field field = chooseColumn(c, input);
 
             Object value = null;
 
-            helper.clearConsole();
+            Map<String, Object> results = referencedFields(nameTable, field);
+
+            String special_column = results.get("special_column").toString();
+            String class_name = results.get("class_name").toString();
+            String table_name = results.get("table_name").toString();
+            Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
             while (true) {
-                String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
 
-                // Check If The field have a referenced_table_name
-                if (referenced_table_name != null) {
+                System.out.println("Write the " + special_column + " of the " + class_name);
 
-                    StringBuilder sb = new StringBuilder(referenced_table_name);
-                    sb.setLength(sb.length() - 1);
-                    String referenced_class_name = sb.toString();
+                value = getInput(input, field);
 
-                    Class<?> claxx = getClass(referenced_class_name);
-                    String Column = getSpecial(claxx);
+                if (referenced) {
 
-                    System.out
-                            .println("Write the " + Column + " of the "
-                                    + referenced_class_name);
+                    Class<?> claxx = getClass(class_name);
 
-                    value = getInput(input, field);
-
-                    if (!checkIfExist(referenced_table_name, Column, value)) {
-                        helper.clearConsole();
+                    if (!checkIfExist(table_name, special_column, value)) {
                         continue;
                     }
 
-                    Object object = service.find(claxx,
-                            referenced_table_name,
-                            Column, value);
+                    Object object = service.find(claxx, table_name, special_column, value);
 
                     Method getIdMethod = object.getClass().getMethod("getId");
 
                     Object id = getIdMethod.invoke(object);
 
                     value = id;
-
-                    break;
                 }
-
-                System.out
-                        .println("Write the " + field.getName() + " of the "
-                                + field.getDeclaringClass().getSimpleName());
-
-                value = getInput(input, field);
 
                 helper.clearConsole();
 
                 if (!checkIfExist(nameTable, field.getName(), value)) {
-                    helper.clearConsole();
                     continue;
                 }
 
@@ -287,27 +273,15 @@ public class View extends Menu {
 
                 if (!f.getName().equals("id")) {
 
-                    String referenced_table_name = service.get_referenced_table_name(nameTable, f.getName());
+                    results = referencedFields(nameTable, f);
 
-                    // Check If The field have a referenced_table_name
-                    if (referenced_table_name != null) {
+                    special_column = results.get("special_column").toString();
 
-                        StringBuilder sb = new StringBuilder(referenced_table_name);
-                        sb.setLength(sb.length() - 1);
-                        String referenced_class_name = sb.toString();
-
-                        Class<?> claxx = getClass(referenced_class_name);
-                        String Column = getSpecial(claxx);
-                        System.out.println(numeration + ". " + Column);
-
-                        numeration++;
-                        continue;
-                    }
-
-                    System.out.println(numeration + ". " + f.getName());
+                    System.out.println(numeration + ". " + special_column);
                     numeration++;
                 }
             }
+
             System.out.println(numeration + ". All of the above");
 
             int choice = 0;
@@ -330,47 +304,42 @@ public class View extends Menu {
                 for (Field f : fields) {
 
                     if (!f.getName().equals("id")) {
-                        String referenced_table_name = service.get_referenced_table_name(nameTable, f.getName());
 
-                        // Check If The field have a referenced_table_name
-                        if (referenced_table_name != null) {
+                        results = referencedFields(nameTable, f);
 
-                            StringBuilder sb = new StringBuilder(referenced_table_name);
-                            sb.setLength(sb.length() - 1);
-                            String referenced_class_name = sb.toString();
+                        special_column = results.get("special_column").toString();
+                        class_name = results.get("class_name").toString();
+                        table_name = results.get("table_name").toString();
+                        referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
-                            Class<?> claxx = getClass(referenced_class_name);
-                            String Column = getSpecial(claxx);
-                            Object nv = null;
-                            while (true) {
-                                System.out.print("Enter the new value for " + Column + ": ");
-                                nv = getInput(input, f);
+                        Class<?> claxx = getClass(class_name);
 
-                                if (!checkIfExist(referenced_table_name, Column, nv)) {
+                        Object nv = null;
+
+                        while (true) {
+                            System.out.print("Enter the new value for " + special_column + ": ");
+                            nv = getInput(input, f);
+
+                            if (referenced) {
+
+                                if (!checkIfExist(table_name, special_column, nv)) {
                                     helper.clearConsole();
                                     continue;
                                 }
 
-                                break;
+                                Object obj = service.find(claxx, table_name, special_column, nv);
+
+                                Method getIdMethod = obj.getClass().getMethod("getId");
+
+                                Object id = getIdMethod.invoke(obj);
+
+                                nv = id;
+
                             }
 
-                            Object obj = service.find(claxx,
-                                    referenced_table_name,
-                                    Column, nv);
-
-                            Method getIdMethod = obj.getClass().getMethod("getId");
-
-                            Object id = getIdMethod.invoke(obj);
-
-                            nv = id;
-
-                            f.set(object, nv);
-
-                            continue;
+                            break;
                         }
 
-                        System.out.print("Enter the new value for " + f.getName() + ": ");
-                        Object nv = getInput(input, f);
                         f.set(object, nv);
                     }
                 }
@@ -379,48 +348,42 @@ public class View extends Menu {
 
                 Field selectedField = fields[choice];
 
-                String referenced_table_name = service.get_referenced_table_name(nameTable, selectedField.getName());
+                results = referencedFields(nameTable, selectedField);
 
-                // Check If The field have a referenced_table_name
-                if (referenced_table_name != null) {
+                special_column = results.get("special_column").toString();
+                class_name = results.get("class_name").toString();
+                table_name = results.get("table_name").toString();
+                referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
-                    StringBuilder sb = new StringBuilder(referenced_table_name);
-                    sb.setLength(sb.length() - 1);
-                    String referenced_class_name = sb.toString();
+                Class<?> claxx = getClass(class_name);
 
-                    Class<?> claxx = getClass(referenced_class_name);
-                    String Column = getSpecial(claxx);
-                    Object nv = null;
-                    while (true) {
-                        System.out.print("Enter the new value for " + Column + ": ");
-                        nv = getInput(input, selectedField);
+                Object nv = null;
 
-                        if (!checkIfExist(referenced_table_name, Column, nv)) {
+                while (true) {
+                    System.out.print("Enter the new value for " + special_column + ": ");
+                    nv = getInput(input, selectedField);
+
+                    if (referenced) {
+
+                        if (!checkIfExist(table_name, special_column, nv)) {
                             helper.clearConsole();
                             continue;
                         }
 
-                        break;
+                        Object obj = service.find(claxx, table_name, special_column, nv);
+
+                        Method getIdMethod = obj.getClass().getMethod("getId");
+
+                        Object id = getIdMethod.invoke(obj);
+
+                        nv = id;
+
                     }
 
-                    Object obj = service.find(claxx,
-                            referenced_table_name,
-                            Column, nv);
-
-                    Method getIdMethod = obj.getClass().getMethod("getId");
-
-                    Object id = getIdMethod.invoke(obj);
-
-                    nv = id;
-
-                    selectedField.set(obj, nv);
-
-                } else {
-                    System.out.print("Enter the new value for " + selectedField.getName() + ": ");
-                    Object newValue = getInput(input, selectedField);
-
-                    selectedField.set(object, newValue);
+                    break;
                 }
+
+                selectedField.set(object, nv);
 
             }
 
@@ -429,7 +392,7 @@ public class View extends Menu {
             helper.clearConsole();
 
             if (updatedSuccessfully) {
-                System.out.println(nameClass + " with " + field.getName() + " " + value + " has been updated.");
+                System.out.println(nameClass + " has been updated.");
             } else {
                 System.out.println("Something Went Wrong");
             }
@@ -629,34 +592,18 @@ public class View extends Menu {
 
         Field[] fields = c.getDeclaredFields();
 
-        Map<String, Field> fakeAndRealFileds = new HashMap<>();
+        Map<Object, Field> fakeAndRealFileds = new HashMap<>();
 
         while (true) {
 
             System.out.print("Wich Column You Looking For (");
             for (Field field : fields) {
 
-                String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+                Map<String, Object> results = referencedFields(nameTable, field);
 
-                // Check If The field have a referenced_table_name
-                if (referenced_table_name != null) {
+                fakeAndRealFileds.put(results.get("special_column"), field);
 
-                    StringBuilder sb = new StringBuilder(referenced_table_name);
-                    sb.setLength(sb.length() - 1);
-                    String referenced_class_name = sb.toString();
-
-                    Class<?> claxx = getClass(referenced_class_name);
-                    String Column = getSpecial(claxx);
-
-                    fakeAndRealFileds.put(Column, field);
-
-                    System.out.print(Column);
-                    System.out.print(",");
-                    continue;
-                }
-
-                fakeAndRealFileds.put(field.getName(), field);
-                System.out.print(field.getName());
+                System.out.print(results.get("special_column"));
                 System.out.print(",");
             }
 
@@ -687,6 +634,7 @@ public class View extends Menu {
 
             System.out.println(nameTable + " with " + whereColumn + " " + value + " does not exist.");
             helper.stopProgramUntilButtonIsCliqued();
+            helper.clearConsole();
 
             return false;
         }
@@ -743,7 +691,7 @@ public class View extends Menu {
         }
     }
 
-    private Class<?>[] getFieldTypes(Field[] fields) {
+    public Class<?>[] getFieldTypes(Field[] fields) {
 
         // Source :
         // https://www.geeksforgeeks.org/how-to-create-array-of-objects-in-java/
@@ -757,4 +705,36 @@ public class View extends Menu {
         return fieldTypes;
     }
 
+    public Map<String, Object> referencedFields(String nameOfTable, Field field) {
+
+        Map<String, Object> results = new HashMap<>();
+
+        String referenced_table_name = service.get_referenced_table_name(nameOfTable, field.getName());
+
+        // Check If The field have a referenced_table_name
+        if (referenced_table_name != null) {
+
+            StringBuilder sb = new StringBuilder(referenced_table_name);
+            sb.setLength(sb.length() - 1);
+            String referenced_class_name = sb.toString();
+
+            Class<?> claxx = getClass(referenced_class_name);
+            String Column = getSpecial(claxx);
+
+            results.put("table_name", referenced_table_name);
+            results.put("class_name", referenced_class_name);
+            results.put("special_column", Column);
+            results.put("referenced", true);
+
+            return results;
+        }
+
+        results.put("table_name", field.getDeclaringClass().getSimpleName() + "s");
+        results.put("class_name", field.getDeclaringClass().getSimpleName());
+        results.put("special_column", field.getName());
+        results.put("referenced", false);
+
+        return results;
+
+    }
 }
