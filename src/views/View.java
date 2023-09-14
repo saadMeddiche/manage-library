@@ -107,9 +107,28 @@ public class View extends Menu {
 
             for (Field field : fields) {
                 field.setAccessible(true);
-                String fieldName = field.getName();
-                Object v = field.get(object);
-                System.out.println(fieldName + ": " + v);
+
+                Map<String, Object> results = referencedFields(nameTable, field);
+
+                String special_column = results.get("special_column").toString();
+                String class_name = results.get("class_name").toString();
+                String table_name = results.get("table_name").toString();
+                Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
+
+                Object v = null;
+
+                v = field.get(object);
+
+                if (referenced) {
+                    Class<?> claxx = getClass(class_name);
+
+                    Object obj = service.find(claxx, table_name, "id", value);
+
+                    Field f = claxx.getDeclaredField(special_column);
+                    v = f.get(obj);
+                }
+
+                System.out.println(special_column + ": " + v);
             }
 
         } catch (Exception e) {
@@ -489,9 +508,26 @@ public class View extends Menu {
             try {
                 for (Field field : fields) {
                     field.setAccessible(true);
-                    String fieldName = field.getName();
+
+                    Map<String, Object> results = referencedFields(nameTable, field);
+
+                    String special_column = results.get("special_column").toString();
+                    String class_name = results.get("class_name").toString();
+                    String table_name = results.get("table_name").toString();
+                    Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
+
                     Object value = field.get(listObject.get(i));
-                    System.out.println(fieldName + ": " + value);
+
+                    if (referenced) {
+                        Class<?> claxx = getClass(class_name);
+
+                        Object obj = service.find(claxx, table_name, "id", value);
+
+                        Field f = claxx.getDeclaredField(special_column);
+                        value = f.get(obj);
+                    }
+                    
+                    System.out.println(special_column + ": " + value);
                 }
 
                 System.out.println("\u001B[32m" + "======================" + "\u001B[0m");
