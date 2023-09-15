@@ -2,14 +2,21 @@
 
 -- # Trigger
 
-CREATE TABLE 
-Books (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(50),
-    author VARCHAR(40),
-    isbn INT,
-    quantite INT
-);
+CREATE TABLE
+    Authors (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(50)
+    );
+
+CREATE TABLE
+    Books (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(50),
+        author_id INT,
+        isbn INT,
+        quantite INT,
+        FOREIGN KEY (author_id) REFERENCES Authors(id) ON DELETE SET NULL
+    );
 
 CREATE TABLE
     Clients (
@@ -27,8 +34,8 @@ CREATE TABLE
         date_borrow_start VARCHAR(20) NOT NULL,
         date_borrow_end VARCHAR(20) NOT NULL,
         price INT,
-        FOREIGN KEY (book_id) REFERENCES Books(id),
-        FOREIGN KEY (client_id) REFERENCES Clients(id)
+        FOREIGN KEY (book_id) REFERENCES Books(id) ON DELETE CASCADE,
+        FOREIGN KEY (client_id) REFERENCES Clients(id) ON DELETE CASCADE
     );
 
 CREATE TABLE
@@ -43,14 +50,14 @@ CREATE TABLE
         book_id INT,
         status_id INT,
         quantite INT,
-        FOREIGN KEY (book_id) REFERENCES Books(id),
-        FOREIGN KEY (status_id) REFERENCES Statuss(id)
+        FOREIGN KEY (book_id) REFERENCES Books(id) ON DELETE CASCADE,
+        FOREIGN KEY (status_id) REFERENCES Statuss(id) ON DELETE CASCADE
     );
 
 --Trigger
 
 CREATE TRIGGER  
-	BORROWBOOK AFTER
+	   BORROWBOOK AFTER
 	INSERT
 	    on BorrowedBooks for each row
 	UPDATE books
@@ -62,7 +69,7 @@ CREATE TRIGGER
 
 
 CREATE TRIGGER  
-	      RETURNBOOK AFTER
+	   RETURNBOOK AFTER
 	DELETE
 	    ON BorrowedBooks FOR EACH ROW
 	UPDATE books

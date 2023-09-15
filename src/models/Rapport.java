@@ -46,6 +46,10 @@ public class Rapport {
         this.quantite = quantite;
     }
 
+    public static String special() {
+        return "id";
+    }
+
     public Integer id;
     public Integer book_id;
     public Integer status_id;

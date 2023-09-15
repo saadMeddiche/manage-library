@@ -1,6 +1,5 @@
 package models;
 
-
 public class BorrowedBook {
     public Integer id;
     public Integer book_id;

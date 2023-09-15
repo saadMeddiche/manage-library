@@ -1,17 +1,16 @@
 package models;
 
 public class Book {
-
     public Integer id;
     public String title;
-    public String author;
+    public Integer author_id;
     public Integer isbn;
     public Integer quantite;
 
-    public Book(Integer id, String title, String author, Integer isbn, Integer quantite) {
+    public Book(Integer id, String title, Integer author_id, Integer isbn, Integer quantite) {
         this.id = id;
         this.title = title;
-        this.author = author;
+        this.author_id = author_id;
         this.isbn = isbn;
         this.quantite = quantite;
     }
@@ -20,13 +19,12 @@ public class Book {
 
     }
 
-    // Getters & Setters
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Integer getId() {
         return this.id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -37,12 +35,12 @@ public class Book {
         this.title = title;
     }
 
-    public String getAuthor() {
-        return this.author;
+    public Integer getAuthor_id() {
+        return this.author_id;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthor_id(Integer author_id) {
+        this.author_id = author_id;
     }
 
     public Integer getIsbn() {
@@ -64,4 +62,5 @@ public class Book {
     public static String special() {
         return "isbn";
     }
+
 }
