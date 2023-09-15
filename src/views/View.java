@@ -173,28 +173,24 @@ public class View extends Menu {
                     continue;
                 }
 
-                String referenced_table_name = service.get_referenced_table_name(nameTable, field.getName());
+                Map<String, Object> results = referencedFields(nameTable, field);
 
-                // Check If The field have a referenced_table_name
-                if (referenced_table_name != null) {
+                String special_column = results.get("special_column").toString();
+                String class_name = results.get("class_name").toString();
+                String table_name = results.get("table_name").toString();
+                Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
-                    StringBuilder sb = new StringBuilder(referenced_table_name);
-                    sb.setLength(sb.length() - 1);
-                    String referenced_class_name = sb.toString();
+                System.out.println("Add " + special_column + " Of " + class_name);
+                Values[index] = getInput(input, field);
 
-                    Class<?> claxx = getClass(referenced_class_name);
+                if (referenced) {
+                    Class<?> claxx = getClass(class_name);
 
-                    String whereColumn = getSpecial(claxx);
-
-                    System.out.println("Add " + whereColumn + " Of " + claxx.getSimpleName());
-
-                    String v = input.next().toString();
-
-                    if (!checkIfExist(referenced_table_name, whereColumn, v)) {
+                    if (!checkIfExist(table_name, special_column, Values[index])) {
                         return;
                     }
 
-                    Object object = service.find(claxx, referenced_table_name, whereColumn, v);
+                    Object object = service.find(claxx, table_name, special_column, Values[index]);
 
                     Method getIdMethod = object.getClass().getMethod("getId");
 
@@ -202,13 +198,7 @@ public class View extends Menu {
 
                     Values[index] = id;
 
-                    continue;
-
                 }
-
-                System.out.println("Add " + field.getName() + " Of " + nameClass);
-                Values[index] = getInput(input, field);
-
                 index++;
 
             }
