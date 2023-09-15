@@ -180,26 +180,31 @@ public class View extends Menu {
                 String table_name = results.get("table_name").toString();
                 Boolean referenced = Boolean.parseBoolean(results.get("referenced").toString());
 
-                System.out.println("Add " + special_column + " Of " + class_name);
-                Values[index] = getInput(input, field);
+                while (true) {
+                    System.out.println("Add " + special_column + " Of " + class_name);
+                    Values[index] = getInput(input, field);
 
-                if (referenced) {
-                    Class<?> claxx = getClass(class_name);
+                    if (referenced) {
+                        Class<?> claxx = getClass(class_name);
 
-                    if (!checkIfExist(table_name, special_column, Values[index])) {
-                        return;
+                        if (!checkIfExist(table_name, special_column, Values[index])) {
+                            continue;
+                        }
+
+                        Object object = service.find(claxx, table_name, special_column, Values[index]);
+
+                        Method getIdMethod = object.getClass().getMethod("getId");
+
+                        Object id = getIdMethod.invoke(object);
+
+                        Values[index] = id;
+
                     }
 
-                    Object object = service.find(claxx, table_name, special_column, Values[index]);
-
-                    Method getIdMethod = object.getClass().getMethod("getId");
-
-                    Object id = getIdMethod.invoke(object);
-
-                    Values[index] = id;
-
+                    index++;
+                    
+                    break;
                 }
-                index++;
 
             }
 
