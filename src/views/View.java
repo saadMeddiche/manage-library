@@ -729,9 +729,14 @@ public class View extends Menu {
         }
 
         while (true) {
+
             switch (field.getType().getSimpleName()) {
                 case "String":
                     String stringValue = input.nextLine();
+                    if (stringValue.equals("") || stringValue.equals(" ")) {
+                        System.out.println("Please do not enter an empty value for " + field.getName());
+                        break;
+                    }
                     return stringValue;
                 case "Integer":
                     try {
